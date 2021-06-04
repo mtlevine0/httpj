@@ -1,9 +1,6 @@
 package com.mtlevine0;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.PrintWriter;
+import java.io.*;
 import java.net.Socket;
 import java.util.logging.Logger;
 
@@ -20,32 +17,25 @@ public class HttpThread implements Runnable {
     public void run() {
         try {
             LOGGER.info("Running thread!");
-            PrintWriter out;
-            BufferedReader in;
-            out = new PrintWriter(socket.getOutputStream(), true);
-            in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+            PrintWriter out = new PrintWriter(socket.getOutputStream(), true);
+            InputStream in = socket.getInputStream();
+            String rawRequest = readRequest(in);
+            HttpRequest request = new HttpRequest(rawRequest);
+            LOGGER.info(request.toString());
 
-            String inputLine;
-            String body = "";
-            while(in.ready()) {
-                body += (char) in.read();
-            }
+            String resBody = "<html>\r\n" +
+                    "<body>\r\n" +
+                    "<h1>Hello, World!</h1>\r\n" +
+                    "</body>\r\n" +
+                    "</html>\r\n\r\n";
 
-            LOGGER.info(body);
-
-            String resBody = "<html>\n" +
-                    "<body>\n" +
-                    "<h1>Hello, World!</h1>\n" +
-                    "</body>\n" +
-                    "</html>";
-
-            String response = "HTTP/1.1 200 OK\n" +
-                    "Date: Mon, 27 Jul 2009 12:28:53 GMT\n" +
-                    "Server: Apache/2.2.14 (Win32)\n" +
-                    "Last-Modified: Wed, 22 Jul 2009 19:15:56 GMT\n" +
-                    "Content-Length: " + (resBody.length() + 1) + "\n" +
-                    "Content-Type: text/html\n" +
-                    "Connection: Closed\n\n";
+            String response = "HTTP/1.1 200 OK\r\n" +
+                    "Date: Mon, 27 Jul 2009 12:28:53 GMT\r\n" +
+                    "Server: Apache/2.2.14 (Win32)\r\n" +
+                    "Last-Modified: Wed, 22 Jul 2009 19:15:56 GMT\r\n" +
+                    "Content-Length: " + (resBody.length() + 2) + "\r\n" +
+                    "Content-Type: text/html\r\n" +
+                    "Connection: Closed\r\n\r\n";
 
             out.println(response + resBody);
             in.close();
@@ -54,5 +44,13 @@ public class HttpThread implements Runnable {
         } catch (IOException e) {
 
         }
+    }
+
+    private String readRequest(InputStream in) throws IOException {
+        StringBuilder request = new StringBuilder();
+        do {
+            request.append((char) in.read());
+        } while (in.available() > 0);
+        return request.toString();
     }
 }
