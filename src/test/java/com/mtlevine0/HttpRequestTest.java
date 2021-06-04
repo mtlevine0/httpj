@@ -11,11 +11,27 @@ import static org.junit.Assert.*;
 public class HttpRequestTest {
     HttpRequest httpRequest;
     HttpRequest mockHttpRequest;
+    String httpRequestRaw;
     
     @Before
     public void setup() {
         mockHttpRequest = generateMockHttpRequest();
         httpRequest = new HttpRequest(mockHttpRequest.toString());
+        httpRequestRaw = generateRawHttpRequest();
+    }
+
+    private String generateRawHttpRequest() {
+        return "POST /test HTTP/1.1\r\n" +
+                "Content-Type: text/plain\r\n" +
+                "User-Agent: PostmanRuntime/7.26.8\r\n" +
+                "Accept: */*\r\n" +
+                "Postman-Token: 1bd29bd4-95a8-41cf-b2dd-1150f2c9f6c0\r\n" +
+                "Host: localhost:8080\r\n" +
+                "Accept-Encoding: gzip, deflate, br\r\n" +
+                "Connection: keep-alive\r\n" +
+                "Content-Length: 4\r\n" +
+                "\r\n" +
+                "test\r\n\r\n";
     }
 
     private HttpRequest generateMockHttpRequest() {
@@ -69,5 +85,11 @@ public class HttpRequestTest {
     @Test
     public void GivenAHttpRequest_WhenParseRequest_ThenRebuildRawRequest() {
         assertEquals(mockHttpRequest.toString(), httpRequest.toString());
+    }
+
+    @Test
+    public void GivenARawHttpRequestString_WhenParseRequest_ThenEnsureHeadersRemainInOrder() {
+        HttpRequest request = new HttpRequest(httpRequestRaw);
+        assertEquals(httpRequestRaw, request.toString());
     }
 }

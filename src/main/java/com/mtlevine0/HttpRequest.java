@@ -1,6 +1,6 @@
 package com.mtlevine0;
 
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 public class HttpRequest {
@@ -20,7 +20,7 @@ public class HttpRequest {
     }
 
     private void parseRequest() {
-        String[] requestLines = request.split("\n");
+        String[] requestLines = request.split("\r\n");
         method = parseMethod(requestLines);
         path = parsePath(requestLines);
         protocolVersion = parseProtocolVersion(requestLines);
@@ -46,7 +46,7 @@ public class HttpRequest {
     private Map<String, String> parseHeaders(String[] requestLines) {
         int start = 1;
         int length = getNumberOfHeaders(requestLines);
-        Map<String, String> headers = new HashMap<>();
+        Map<String, String> headers = new LinkedHashMap<>();
 
         for (int i = start; i < start + length; i++) {
             String key = requestLines[i].split(": ", 2)[0];
@@ -64,7 +64,7 @@ public class HttpRequest {
                 return i - 1;
             }
         }
-        return 0;
+        return requestLines.length - 1;
     }
 
     private String parseBody(String[] requestLines) {
@@ -128,13 +128,13 @@ public class HttpRequest {
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();
-        sb.append(method.toString() + " " + path + " " + protocolVersion + "\n");
+        sb.append(method.toString() + " " + path + " " + protocolVersion + "\r\n");
         for (String headerKey : headers.keySet()) {
-            sb.append(headerKey + ": " + headers.get(headerKey) + "\n");
+            sb.append(headerKey + ": " + headers.get(headerKey) + "\r\n");
         }
-        sb.append("\n");
+        sb.append("\r\n");
         sb.append(body);
-        sb.append("\n\n");
+        sb.append("\r\n\r\n");
         return sb.toString();
     }
 }
