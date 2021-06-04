@@ -44,7 +44,7 @@ public class HttpResponseTest {
         return HttpResponse.builder()
                 .status(HttpStatus.OK)
                 .protocolVersion("HTTP/1.1")
-                .body(body)
+                .body(body.getBytes())
                 .headers(headers)
                 .build();
     }
@@ -60,7 +60,7 @@ public class HttpResponseTest {
 
     @Test
     public void GivenHttpResponse_WhenParsingResponse_ThenResponseShouldMatchRawResponse() {
-        assertEquals(rawHttpResponse, httpResponse.toString());
+        assertArrayEquals(rawHttpResponse.getBytes(), httpResponse.getResponse());
     }
 
 }

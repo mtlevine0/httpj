@@ -13,9 +13,9 @@ public class HttpResponse {
     HttpStatus status;
     String reason;
     Map<String, String> headers;
-    String body;
+    byte[] body;
 
-    public HttpResponse(String protocolVersion, HttpStatus status, String reason, Map<String, String> headers, String body) {
+    public HttpResponse(String protocolVersion, HttpStatus status, String reason, Map<String, String> headers, byte[] body) {
         this.protocolVersion = protocolVersion;
         this.status = status;
         this.reason = reason;
@@ -33,29 +33,30 @@ public class HttpResponse {
             if (super.headers == null) {
                 super.headers = new LinkedHashMap<>();
             }
-            if (super.body != null) {
-                super.body = super.body + "\r\n";
-            }
             super.headers.put("Content-Length", String.valueOf(generateContentLength(super.body)));
             return super.build();
         }
     }
 
-    private static int generateContentLength(String body) {
-        return body.length();
+    private static int generateContentLength(byte[] body) {
+        return body.length;
     }
 
-    @Override
-    public String toString() {
-        StringBuilder response = new StringBuilder();
+    public byte[] getResponse() {
+        String responseHeader = this.generateResponseHeader();
+        byte[] response = new byte[responseHeader.length() + body.length];
+        System.arraycopy(responseHeader.getBytes(), 0, response, 0, responseHeader.getBytes().length);
+        System.arraycopy(body, 0, response, responseHeader.getBytes().length, body.length);
+        return response;
+    }
 
+    private String generateResponseHeader() {
+        StringBuilder response = new StringBuilder();
         response.append(protocolVersion + " " + status.getValue() + " " + status.getReason() + "\r\n");
         for (String key : headers.keySet()) {
             response.append(key + ": " + headers.get(key) + "\r\n");
         }
         response.append("\r\n");
-        response.append(body);
-
         return response.toString();
     }
 }

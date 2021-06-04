@@ -2,6 +2,8 @@ package com.mtlevine0;
 
 import java.io.*;
 import java.net.Socket;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.logging.Logger;
 
 public class HttpThread implements Runnable {
@@ -23,26 +25,19 @@ public class HttpThread implements Runnable {
             HttpRequest request = new HttpRequest(rawRequest);
             LOGGER.info(request.toString());
 
-            String resBody = "<html>\r\n" +
-                    "<body>\r\n" +
-                    "<h1>Hello, World!</h1>\r\n" +
-                    "</body>\r\n" +
-                    "</html>\r\n";
-
-            resBody = "testing123";
-
+            byte[] bytes = Files.readAllBytes(Paths.get("src/main/resources" + request.getPath()));
             HttpResponse httpResponse = HttpResponse.builder()
                     .status(HttpStatus.OK)
                     .protocolVersion("HTTP/1.1")
-                    .body(resBody)
+                    .body(bytes)
                     .build();
 
-            out.write(httpResponse.toString().getBytes());
+            out.write(httpResponse.getResponse());
             in.close();
             out.close();
             socket.close();
         } catch (IOException e) {
-
+            e.printStackTrace();
         }
     }
 
