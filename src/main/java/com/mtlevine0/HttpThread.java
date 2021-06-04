@@ -17,7 +17,7 @@ public class HttpThread implements Runnable {
     public void run() {
         try {
             LOGGER.info("Running thread!");
-            PrintWriter out = new PrintWriter(socket.getOutputStream(), true);
+            OutputStream out = socket.getOutputStream();
             InputStream in = socket.getInputStream();
             String rawRequest = readRequest(in);
             HttpRequest request = new HttpRequest(rawRequest);
@@ -27,17 +27,17 @@ public class HttpThread implements Runnable {
                     "<body>\r\n" +
                     "<h1>Hello, World!</h1>\r\n" +
                     "</body>\r\n" +
-                    "</html>\r\n\r\n";
+                    "</html>\r\n";
 
-            String response = "HTTP/1.1 200 OK\r\n" +
-                    "Date: Mon, 27 Jul 2009 12:28:53 GMT\r\n" +
-                    "Server: Apache/2.2.14 (Win32)\r\n" +
-                    "Last-Modified: Wed, 22 Jul 2009 19:15:56 GMT\r\n" +
-                    "Content-Length: " + (resBody.length() + 2) + "\r\n" +
-                    "Content-Type: text/html\r\n" +
-                    "Connection: Closed\r\n\r\n";
+            resBody = "testing123";
 
-            out.println(response + resBody);
+            HttpResponse httpResponse = HttpResponse.builder()
+                    .status(HttpStatus.OK)
+                    .protocolVersion("HTTP/1.1")
+                    .body(resBody)
+                    .build();
+
+            out.write(httpResponse.toString().getBytes());
             in.close();
             out.close();
             socket.close();
