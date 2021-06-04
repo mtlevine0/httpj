@@ -11,13 +11,13 @@ import static org.junit.Assert.*;
 public class HttpRequestTest {
     HttpRequest httpRequest;
     HttpRequest mockHttpRequest;
-    String httpRequestRaw;
+    String rawHttpRequest;
     
     @Before
     public void setup() {
         mockHttpRequest = generateMockHttpRequest();
         httpRequest = new HttpRequest(mockHttpRequest.toString());
-        httpRequestRaw = generateRawHttpRequest();
+        rawHttpRequest = generateRawHttpRequest();
     }
 
     private String generateRawHttpRequest() {
@@ -89,7 +89,7 @@ public class HttpRequestTest {
 
     @Test
     public void GivenARawHttpRequestString_WhenParseRequest_ThenEnsureHeadersRemainInOrder() {
-        HttpRequest request = new HttpRequest(httpRequestRaw);
-        assertEquals(httpRequestRaw, request.toString());
+        HttpRequest request = new HttpRequest(rawHttpRequest);
+        assertEquals(rawHttpRequest, request.toString());
     }
 }
