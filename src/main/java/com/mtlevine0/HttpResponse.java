@@ -3,6 +3,9 @@ package com.mtlevine0;
 import lombok.Builder;
 import lombok.Value;
 
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -42,12 +45,12 @@ public class HttpResponse {
         return body.length;
     }
 
-    public byte[] getResponse() {
-        String responseHeader = this.generateResponseHeader();
-        byte[] response = new byte[responseHeader.length() + body.length];
-        System.arraycopy(responseHeader.getBytes(), 0, response, 0, responseHeader.getBytes().length);
-        System.arraycopy(body, 0, response, responseHeader.getBytes().length, body.length);
-        return response;
+    public byte[] getResponse() throws IOException {
+        byte[] responseHeader = this.generateResponseHeader().getBytes();
+        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+        outputStream.write(responseHeader);
+        outputStream.write(body);
+        return outputStream.toByteArray();
     }
 
     private String generateResponseHeader() {

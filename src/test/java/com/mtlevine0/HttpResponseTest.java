@@ -3,6 +3,7 @@ package com.mtlevine0;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.io.IOException;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -59,7 +60,7 @@ public class HttpResponseTest {
     }
 
     @Test
-    public void GivenHttpResponse_WhenParsingResponse_ThenResponseShouldMatchRawResponse() {
+    public void GivenHttpResponse_WhenParsingResponse_ThenResponseShouldMatchRawResponse() throws IOException {
         assertArrayEquals(rawHttpResponse.getBytes(), httpResponse.getResponse());
     }
 
