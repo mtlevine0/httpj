@@ -34,7 +34,7 @@ public class HttpRequestHandler implements Runnable {
             respond(HttpStatus.OK, resource);
         } catch (NoSuchFileException e) {
             e.printStackTrace();
-            respond(HttpStatus.OK, HttpStatus.NOT_FOUND.getReason().getBytes());
+            respond(HttpStatus.NOT_FOUND, HttpStatus.NOT_FOUND.getReason().getBytes());
         } catch (URISyntaxException e) {
             e.printStackTrace();
             respond(HttpStatus.BAD_REQUEST, HttpStatus.BAD_REQUEST.getReason().getBytes());
