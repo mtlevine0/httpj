@@ -18,6 +18,7 @@ import java.nio.file.Paths;
 import java.time.Instant;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 import java.util.logging.Logger;
 
 public class HttpRequestHandler implements Runnable {
@@ -26,6 +27,8 @@ public class HttpRequestHandler implements Runnable {
     private Socket socket;
     private OutputStream out;
     private InputStream in;
+    private HttpStatus httpStatus;
+    private byte[] body;
 
     private static final String BASE_PATH = "../httpj";
 
@@ -39,22 +42,8 @@ public class HttpRequestHandler implements Runnable {
 
     @Override
     public void run() {
-        HttpStatus httpStatus = null;
-        byte[] body = null;
         try {
-            HttpRequest request = new HttpRequest(in);
-            if (request.getMethod().equals(HttpMethod.GET)) {
-                httpStatus = HttpStatus.OK;
-                if (!isDirectory(request.getPath())) {
-                    body = loadResource(request.getPath());
-                } else {
-                    body = lsDir(request.getPath()).getBytes();
-                }
-            } else if (request.getMethod().equals(HttpMethod.HEAD)) {
-                httpStatus = HttpStatus.OK;
-            } else {
-                httpStatus = HttpStatus.METHOD_NOT_ALLOWED;
-            }
+            handleRequest(new HttpRequest(in));
         } catch (MethodNotImplementedException e) {
             httpStatus = HttpStatus.NOT_IMPLEMENTED;
             e.printStackTrace();
@@ -68,8 +57,26 @@ public class HttpRequestHandler implements Runnable {
             httpStatus = HttpStatus.BAD_REQUEST;
             e.printStackTrace();
         } finally {
-            respond(httpStatus, body != null ? body : httpStatus.getReason().getBytes());
+            if (Objects.isNull(body)) {
+                body = httpStatus.getReason().getBytes();
+            }
+            respond(httpStatus, body);
             close();
+        }
+    }
+
+    private void handleRequest(HttpRequest request) throws URISyntaxException, AccessDeniedException, NoSuchFileException {
+        if (request.getMethod().equals(HttpMethod.GET)) {
+            httpStatus = HttpStatus.OK;
+            if (!isDirectory(request.getPath())) {
+                body = loadResource(request.getPath());
+            } else {
+                body = lsDir(request.getPath()).getBytes();
+            }
+        } else if (request.getMethod().equals(HttpMethod.HEAD)) {
+            httpStatus = HttpStatus.OK;
+        } else {
+            httpStatus = HttpStatus.METHOD_NOT_ALLOWED;
         }
     }
 
