@@ -11,16 +11,13 @@ import java.util.Map;
 @Value
 @Builder
 public class HttpResponse {
-    String protocolVersion;
-    HttpStatus status;
-    String reason;
-    Map<String, String> headers;
-    byte[] body;
+    private String protocolVersion = "HTTP/1.1";
+    private HttpStatus status;
+    private Map<String, String> headers;
+    private byte[] body;
 
-    public HttpResponse(String protocolVersion, HttpStatus status, String reason, Map<String, String> headers, byte[] body) {
-        this.protocolVersion = protocolVersion;
+    public HttpResponse(HttpStatus status, Map<String, String> headers, byte[] body) {
         this.status = status;
-        this.reason = reason;
         this.headers = headers;
         this.body = body;
     }

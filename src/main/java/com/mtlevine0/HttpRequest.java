@@ -1,11 +1,12 @@
 package com.mtlevine0;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
 public class HttpRequest {
     private String request;
-
     private HttpMethod method;
     private String path;
     private String protocolVersion;
@@ -14,9 +15,17 @@ public class HttpRequest {
 
     public HttpRequest() {}
 
-    public HttpRequest(String request) {
-        this.request = request;
+    public HttpRequest(InputStream in) throws IOException {
+        this.request = readRequest(in);
         parseRequest();
+    }
+
+    private String readRequest(InputStream in) throws IOException {
+        StringBuilder request = new StringBuilder();
+        do {
+            request.append((char) in.read());
+        } while (in.available() > 0);
+        return request.toString();
     }
 
     private void parseRequest() {

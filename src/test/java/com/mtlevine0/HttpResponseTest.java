@@ -44,7 +44,6 @@ public class HttpResponseTest {
 
         return HttpResponse.builder()
                 .status(HttpStatus.OK)
-                .protocolVersion("HTTP/1.1")
                 .body(body.getBytes())
                 .headers(headers)
                 .build();

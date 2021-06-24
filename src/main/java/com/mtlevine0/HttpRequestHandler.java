@@ -29,15 +29,13 @@ public class HttpRequestHandler implements Runnable {
             LOGGER.info("Running thread!");
             out = socket.getOutputStream();
             in = socket.getInputStream();
-            String rawRequest = readRequest(in);
-            HttpRequest request = new HttpRequest(rawRequest);
+            HttpRequest request = new HttpRequest(in);
             LOGGER.info(request.toString());
 
             String sanitizedPath = new URI(request.getPath()).normalize().getPath();
             byte[] bytes = Files.readAllBytes(Paths.get("src/main/resources" + sanitizedPath));
             HttpResponse httpResponse = HttpResponse.builder()
                     .status(HttpStatus.OK)
-                    .protocolVersion("HTTP/1.1")
                     .body(bytes)
                     .build();
 
@@ -48,7 +46,6 @@ public class HttpRequestHandler implements Runnable {
                 LOGGER.warning("not found");
                 HttpResponse res = HttpResponse.builder()
                         .status(HttpStatus.NOT_FOUND)
-                        .protocolVersion("HTTP/1.1")
                         .body("Not Found".getBytes())
                         .build();
                 try {
@@ -74,11 +71,4 @@ public class HttpRequestHandler implements Runnable {
         }
     }
 
-    private String readRequest(InputStream in) throws IOException {
-        StringBuilder request = new StringBuilder();
-        do {
-            request.append((char) in.read());
-        } while (in.available() > 0);
-        return request.toString();
-    }
 }
