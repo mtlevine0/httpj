@@ -2,6 +2,7 @@ package com.mtlevine0;
 
 public enum HttpStatus {
     OK(200, "Ok"),
+    BAD_REQUEST(400, "Bad Request"),
     NOT_FOUND(404, "Not Found");
 
     private final int value;

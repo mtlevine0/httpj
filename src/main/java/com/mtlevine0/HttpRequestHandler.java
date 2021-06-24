@@ -13,27 +13,31 @@ public class HttpRequestHandler implements Runnable {
     private static Logger LOGGER = Logger.getLogger(HttpRequestHandler.class.getName());
 
     private Socket socket;
+    private OutputStream out;
+    private InputStream in;
 
     public HttpRequestHandler(Socket socket) {
         this.socket = socket;
+        try {
+            out = socket.getOutputStream();
+            in = socket.getInputStream();
+        } catch (IOException e) {
+
+        }
     }
 
     @Override
     public void run() {
-        OutputStream out = null;
-        InputStream in = null;
         try {
-            out = socket.getOutputStream();
-            in = socket.getInputStream();
             HttpRequest request = new HttpRequest(in);
-            respondFound(out, request);
-        } catch (IOException e) {
+            byte[] resource = loadResource(request.getPath());
+            respond(HttpStatus.OK, resource);
+        } catch (NoSuchFileException e) {
             e.printStackTrace();
-            if (e.getClass().equals(NoSuchFileException.class)) {
-                respondNotFound(out);
-            }
+            respond(HttpStatus.OK, HttpStatus.NOT_FOUND.getReason().getBytes());
         } catch (URISyntaxException e) {
             e.printStackTrace();
+            respond(HttpStatus.BAD_REQUEST, HttpStatus.BAD_REQUEST.getReason().getBytes());
         } finally {
             close();
         }
@@ -47,23 +51,26 @@ public class HttpRequestHandler implements Runnable {
         }
     }
 
-    private void respondFound(OutputStream out, HttpRequest request) throws URISyntaxException, IOException {
-        String sanitizedPath = new URI(request.getPath()).normalize().getPath();
-        byte[] bytes = Files.readAllBytes(Paths.get("src/main/resources" + sanitizedPath));
-        HttpResponse httpResponse = HttpResponse.builder()
-                .status(HttpStatus.OK)
-                .body(bytes)
-                .build();
-        out.write(httpResponse.getResponse());
+    private byte[] loadResource(String path) throws URISyntaxException, NoSuchFileException {
+        byte[] resource = null;
+        try {
+            String sanitizedPath = new URI(path).normalize().getPath();
+            resource = Files.readAllBytes(Paths.get("src/main/resources" + sanitizedPath));
+        } catch (NoSuchFileException | URISyntaxException e) {
+            throw e;
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return resource;
     }
 
-    private void respondNotFound(OutputStream out) {
-        HttpResponse res = HttpResponse.builder()
-                .status(HttpStatus.NOT_FOUND)
-                .body("Not Found".getBytes())
-                .build();
+    private void respond(HttpStatus status, byte[] body) {
         try {
-            out.write(res.getResponse());
+            HttpResponse httpResponse = HttpResponse.builder()
+                    .status(status)
+                    .body(body)
+                    .build();
+            out.write(httpResponse.getResponse());
         } catch (IOException e) {
             e.printStackTrace();
         }

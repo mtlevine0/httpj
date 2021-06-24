@@ -15,16 +15,21 @@ public class HttpRequest {
 
     public HttpRequest() {}
 
-    public HttpRequest(InputStream in) throws IOException {
+    public HttpRequest(InputStream in) {
         this.request = readRequest(in);
         parseRequest();
     }
 
-    private String readRequest(InputStream in) throws IOException {
+    private String readRequest(InputStream in) {
         StringBuilder request = new StringBuilder();
-        do {
-            request.append((char) in.read());
-        } while (in.available() > 0);
+        try {
+            do {
+                request.append((char) in.read());
+            } while (in.available() > 0);
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
         return request.toString();
     }
 
