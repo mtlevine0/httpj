@@ -43,7 +43,8 @@ public class HttpRequestHandler implements Runnable {
     @Override
     public void run() {
         try {
-            handleRequest(new HttpRequest(in));
+            HttpRequest httpRequest = new HttpRequest(in);
+            handleRequest(httpRequest);
         } catch (MethodNotImplementedException e) {
             httpStatus = HttpStatus.NOT_IMPLEMENTED;
         } catch (NoSuchFileException e) {
