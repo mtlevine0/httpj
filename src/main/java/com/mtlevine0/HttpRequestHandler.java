@@ -106,7 +106,10 @@ public class HttpRequestHandler implements Runnable {
         sb.append("<tr><th>Name</th><th>Last Modified</th><th>Size</th></tr>");
         for (File file : files) {
             sb.append("<tr>");
-            sb.append("<td>" + file.getName());
+            if (path.equals("/")) {
+                path = "";
+            }
+            sb.append("<td><a href=" + path + "/" + file.getName() + ">" + file.getName() + "</a>");
             if (file.isDirectory()) {
                 sb.append("/");
             }
