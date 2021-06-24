@@ -24,7 +24,6 @@ import java.util.logging.Logger;
 public class HttpRequestHandler implements Runnable {
     private static Logger LOGGER = Logger.getLogger(HttpRequestHandler.class.getName());
 
-    private FeatureFlagService featureFlagService;
     private Socket socket;
     private OutputStream out;
     private InputStream in;
@@ -33,8 +32,7 @@ public class HttpRequestHandler implements Runnable {
 
     private static final String BASE_PATH = "../httpj";
 
-    public HttpRequestHandler(Socket socket, FeatureFlagService featureFlagService) {
-        this.featureFlagService = featureFlagService;
+    public HttpRequestHandler(Socket socket) {
         this.socket = socket;
         try {
             out = socket.getOutputStream();
@@ -66,7 +64,7 @@ public class HttpRequestHandler implements Runnable {
         if (request.getMethod().equals(HttpMethod.GET)) {
             httpStatus = HttpStatus.OK;
             if (isDirectory(request.getPath())) {
-                if (featureFlagService.isFeatureActive(FeatureFlag.DIRECTORY_LISTING)) {
+                if (FeatureFlagContext.getInstance().isFeatureActive(FeatureFlag.DIRECTORY_LISTING)) {
                     body = lsDir(request.getPath()).getBytes();
                 } else {
                     throw new NoSuchFileException("File Does Not Exist: " + request.getPath());
@@ -126,7 +124,7 @@ public class HttpRequestHandler implements Runnable {
     }
 
     private String sanitizePath(String path) throws URISyntaxException {
-        if (featureFlagService.isFeatureActive(FeatureFlag.SANITIZE_PATH)) {
+        if (FeatureFlagContext.getInstance().isFeatureActive(FeatureFlag.SANITIZE_PATH)) {
             return new URI(path).normalize().getPath();
         }
         return path;

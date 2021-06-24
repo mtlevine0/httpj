@@ -9,12 +9,10 @@ import java.util.logging.Logger;
 public class HttpServer {
     private static Logger LOGGER = Logger.getLogger(HttpServer.class.getName());
     private ServerSocket serverSocket;
-    private static FeatureFlagService featureFlagService;
 
     public static void main( String[] args ) throws IOException {
-        featureFlagService = new FeatureFlagService();
-        featureFlagService.enableFeature(FeatureFlag.DIRECTORY_LISTING);
-        featureFlagService.enableFeature(FeatureFlag.SANITIZE_PATH);
+        FeatureFlagContext.getInstance().enableFeature(FeatureFlag.DIRECTORY_LISTING);
+        FeatureFlagContext.getInstance().disableFeature(FeatureFlag.SANITIZE_PATH);
 
         LOGGER.info("Starting httpj Server...");
         HttpServer server = new HttpServer();
@@ -26,7 +24,7 @@ public class HttpServer {
         Executor executor = Executors.newFixedThreadPool(10);
         serverSocket = new ServerSocket(port);
         while (true) {
-            executor.execute(new HttpRequestHandler(serverSocket.accept(), featureFlagService));
+            executor.execute(new HttpRequestHandler(serverSocket.accept()));
         }
     }
 
