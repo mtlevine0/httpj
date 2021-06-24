@@ -44,6 +44,7 @@ public class HttpRequestHandler implements Runnable {
     public void run() {
         try {
             HttpRequest httpRequest = new HttpRequest(in);
+            LOGGER.info(httpRequest.toString());
             handleRequest(httpRequest);
         } catch (MethodNotImplementedException e) {
             httpStatus = HttpStatus.NOT_IMPLEMENTED;
@@ -100,16 +101,19 @@ public class HttpRequestHandler implements Runnable {
     }
 
     private String lsDir(String path) throws URISyntaxException {
-        List<File> files = Arrays.asList(new File(BASE_PATH + sanitizePath(path)).listFiles());
+        String sanitizedPath = sanitizePath(path);
+        List<File> files = Arrays.asList(new File(BASE_PATH + sanitizedPath).listFiles());
         StringBuilder sb = new StringBuilder();
         sb.append("<table>");
         sb.append("<tr><th>Name</th><th>Last Modified</th><th>Size</th></tr>");
+        String parentDirectory = generateParentDirectory(sanitizedPath);
+        sb.append("<tr><td><a href=" + parentDirectory + ">..</a></td><td></td><td></td></tr>");
         for (File file : files) {
             sb.append("<tr>");
-            if (path.equals("/")) {
-                path = "";
+            if (sanitizedPath.equals("/")) {
+                sanitizedPath = "";
             }
-            sb.append("<td><a href=" + path + "/" + file.getName() + ">" + file.getName() + "</a>");
+            sb.append("<td><a href=" + sanitizedPath + "/" + file.getName() + ">" + file.getName() + "</a>");
             if (file.isDirectory()) {
                 sb.append("/");
             }
@@ -120,6 +124,15 @@ public class HttpRequestHandler implements Runnable {
         }
         sb.append("</table>");
         return sb.toString();
+    }
+
+    private String generateParentDirectory(String path) {
+        int endIndex = path.lastIndexOf("/");
+        String parentDirectory = "/";
+        if (endIndex != 0) {
+            parentDirectory = path.substring(0, endIndex);
+        }
+        return parentDirectory;
     }
 
     private boolean isDirectory(String path) throws URISyntaxException {

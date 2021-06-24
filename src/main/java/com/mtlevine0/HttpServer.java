@@ -13,6 +13,7 @@ public class HttpServer {
 
     public static void main( String[] args ) throws IOException {
         FeatureFlagContext.getInstance().enableFeature(FeatureFlag.DIRECTORY_LISTING);
+        FeatureFlagContext.getInstance().disableFeature(FeatureFlag.SANITIZE_PATH); // disable directory traversal protection
         LOGGER.info("Starting httpj Server...");
         logFeatureFlags();
         HttpServer server = new HttpServer();
