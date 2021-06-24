@@ -46,16 +46,12 @@ public class HttpRequestHandler implements Runnable {
             handleRequest(new HttpRequest(in));
         } catch (MethodNotImplementedException e) {
             httpStatus = HttpStatus.NOT_IMPLEMENTED;
-            e.printStackTrace();
         } catch (NoSuchFileException e) {
             httpStatus = HttpStatus.NOT_FOUND;
-            e.printStackTrace();
         } catch (AccessDeniedException e) {
             httpStatus = HttpStatus.UNAUTHORIZED;
-            e.printStackTrace();
         } catch (URISyntaxException e) {
             httpStatus = HttpStatus.BAD_REQUEST;
-            e.printStackTrace();
         } finally {
             if (Objects.isNull(body)) {
                 body = httpStatus.getReason().getBytes();
@@ -66,6 +62,7 @@ public class HttpRequestHandler implements Runnable {
     }
 
     private void handleRequest(HttpRequest request) throws URISyntaxException, AccessDeniedException, NoSuchFileException {
+        LOGGER.info(socket.getInetAddress() + " - " + request.getMethod().toString() + " - " + request.getPath());
         if (request.getMethod().equals(HttpMethod.GET)) {
             httpStatus = HttpStatus.OK;
             if (!isDirectory(request.getPath())) {
