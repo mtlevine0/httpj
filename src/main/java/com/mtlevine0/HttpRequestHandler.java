@@ -24,6 +24,7 @@ import java.util.logging.Logger;
 public class HttpRequestHandler implements Runnable {
     private static Logger LOGGER = Logger.getLogger(HttpRequestHandler.class.getName());
 
+    private FeatureFlagService featureFlagService;
     private Socket socket;
     private OutputStream out;
     private InputStream in;
@@ -32,7 +33,8 @@ public class HttpRequestHandler implements Runnable {
 
     private static final String BASE_PATH = "../httpj";
 
-    public HttpRequestHandler(Socket socket) {
+    public HttpRequestHandler(Socket socket, FeatureFlagService featureFlagService) {
+        this.featureFlagService = featureFlagService;
         this.socket = socket;
         try {
             out = socket.getOutputStream();
@@ -54,9 +56,6 @@ public class HttpRequestHandler implements Runnable {
         } catch (URISyntaxException e) {
             httpStatus = HttpStatus.BAD_REQUEST;
         } finally {
-            if (Objects.isNull(body)) {
-                body = httpStatus.getReason().getBytes();
-            }
             respond(httpStatus, body);
             close();
         }
@@ -66,10 +65,14 @@ public class HttpRequestHandler implements Runnable {
         LOGGER.info(socket.getInetAddress() + " - " + request.getMethod().toString() + " - " + request.getPath());
         if (request.getMethod().equals(HttpMethod.GET)) {
             httpStatus = HttpStatus.OK;
-            if (!isDirectory(request.getPath())) {
-                body = loadResource(request.getPath());
+            if (isDirectory(request.getPath())) {
+                if (featureFlagService.isFeatureActive(FeatureFlag.DIRECTORY_LISTING)) {
+                    body = lsDir(request.getPath()).getBytes();
+                } else {
+                    throw new NoSuchFileException("File Does Not Exist: " + request.getPath());
+                }
             } else {
-                body = lsDir(request.getPath()).getBytes();
+                body = loadResource(request.getPath());
             }
         } else if (request.getMethod().equals(HttpMethod.HEAD)) {
             httpStatus = HttpStatus.OK;
@@ -87,8 +90,7 @@ public class HttpRequestHandler implements Runnable {
     }
 
     private String lsDir(String path) throws URISyntaxException {
-        String sanitizedPath = new URI(path).normalize().getPath();
-        List<File> files = Arrays.asList(new File(BASE_PATH + sanitizedPath).listFiles());
+        List<File> files = Arrays.asList(new File(BASE_PATH + sanitizePath(path)).listFiles());
         StringBuilder sb = new StringBuilder();
         sb.append("<table>");
         sb.append("<tr><th>Name</th><th>Last Modified</th><th>Size</th></tr>");
@@ -108,15 +110,13 @@ public class HttpRequestHandler implements Runnable {
     }
 
     private boolean isDirectory(String path) throws URISyntaxException {
-        String sanitizedPath = new URI(path).normalize().getPath();
-        return new File(BASE_PATH + sanitizedPath).isDirectory();
+        return new File(BASE_PATH + sanitizePath(path)).isDirectory();
     }
 
     private byte[] loadResource(String path) throws URISyntaxException, NoSuchFileException, AccessDeniedException {
         byte[] resource = null;
         try {
-            String sanitizedPath = new URI(path).normalize().getPath();
-            resource = Files.readAllBytes(Paths.get(BASE_PATH + sanitizedPath));
+            resource = Files.readAllBytes(Paths.get(BASE_PATH + sanitizePath(path)));
         } catch (NoSuchFileException | URISyntaxException |AccessDeniedException e) {
             throw e;
         } catch (IOException e) {
@@ -125,7 +125,17 @@ public class HttpRequestHandler implements Runnable {
         return resource;
     }
 
+    private String sanitizePath(String path) throws URISyntaxException {
+        if (featureFlagService.isFeatureActive(FeatureFlag.SANITIZE_PATH)) {
+            return new URI(path).normalize().getPath();
+        }
+        return path;
+    }
+
     private void respond(HttpStatus status, byte[] body) {
+        if (Objects.isNull(body)) {
+            body = status.getReason().getBytes();
+        }
         try {
             HttpResponse httpResponse = HttpResponse.builder()
                     .status(status)
