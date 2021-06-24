@@ -1,5 +1,7 @@
-package com.mtlevine0;
+package com.mtlevine0.response;
 
+import com.mtlevine0.response.HttpResponse;
+import com.mtlevine0.response.HttpStatus;
 import org.junit.Before;
 import org.junit.Test;
 

@@ -1,9 +1,16 @@
 package com.mtlevine0;
 
+import com.mtlevine0.exception.MethodNotImplementedException;
+import com.mtlevine0.request.HttpMethod;
+import com.mtlevine0.request.HttpRequest;
+import com.mtlevine0.response.HttpResponse;
+import com.mtlevine0.response.HttpStatus;
+
 import java.io.*;
 import java.net.Socket;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.nio.file.AccessDeniedException;
 import java.nio.file.Files;
 import java.nio.file.NoSuchFileException;
 import java.nio.file.Paths;
@@ -28,17 +35,32 @@ public class HttpRequestHandler implements Runnable {
 
     @Override
     public void run() {
+        HttpStatus httpStatus = null;
+        byte[] body = null;
         try {
             HttpRequest request = new HttpRequest(in);
-            byte[] resource = loadResource(request.getPath());
-            respond(HttpStatus.OK, resource);
+            if (request.getMethod().equals(HttpMethod.GET)) {
+                body = loadResource(request.getPath());
+                httpStatus = HttpStatus.OK;
+            } else if (request.getMethod().equals(HttpMethod.HEAD)) {
+                httpStatus = HttpStatus.OK;
+            } else {
+                httpStatus = HttpStatus.METHOD_NOT_ALLOWED;
+            }
+        } catch (MethodNotImplementedException e) {
+            httpStatus = HttpStatus.NOT_IMPLEMENTED;
+            e.printStackTrace();
         } catch (NoSuchFileException e) {
+            httpStatus = HttpStatus.NOT_FOUND;
             e.printStackTrace();
-            respond(HttpStatus.NOT_FOUND, HttpStatus.NOT_FOUND.getReason().getBytes());
+        } catch (AccessDeniedException e) {
+            httpStatus = HttpStatus.UNAUTHORIZED;
+            e.printStackTrace();
         } catch (URISyntaxException e) {
+            httpStatus = HttpStatus.BAD_REQUEST;
             e.printStackTrace();
-            respond(HttpStatus.BAD_REQUEST, HttpStatus.BAD_REQUEST.getReason().getBytes());
         } finally {
+            respond(httpStatus, body != null ? body : httpStatus.getReason().getBytes());
             close();
         }
     }
@@ -51,12 +73,12 @@ public class HttpRequestHandler implements Runnable {
         }
     }
 
-    private byte[] loadResource(String path) throws URISyntaxException, NoSuchFileException {
+    private byte[] loadResource(String path) throws URISyntaxException, NoSuchFileException, AccessDeniedException {
         byte[] resource = null;
         try {
             String sanitizedPath = new URI(path).normalize().getPath();
             resource = Files.readAllBytes(Paths.get("src/main/resources" + sanitizedPath));
-        } catch (NoSuchFileException | URISyntaxException e) {
+        } catch (NoSuchFileException | URISyntaxException |AccessDeniedException e) {
             throw e;
         } catch (IOException e) {
             e.printStackTrace();

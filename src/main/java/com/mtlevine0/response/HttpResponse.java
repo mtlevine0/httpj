@@ -1,4 +1,4 @@
-package com.mtlevine0;
+package com.mtlevine0.response;
 
 import lombok.Builder;
 import lombok.Value;
