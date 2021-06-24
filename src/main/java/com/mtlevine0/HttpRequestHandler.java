@@ -61,22 +61,34 @@ public class HttpRequestHandler implements Runnable {
 
     private void handleRequest(HttpRequest request) throws URISyntaxException, AccessDeniedException, NoSuchFileException {
         LOGGER.info(socket.getInetAddress() + " - " + request.getMethod().toString() + " - " + request.getPath());
-        if (request.getMethod().equals(HttpMethod.GET)) {
-            httpStatus = HttpStatus.OK;
-            if (isDirectory(request.getPath())) {
-                if (FeatureFlagContext.getInstance().isFeatureActive(FeatureFlag.DIRECTORY_LISTING)) {
-                    body = lsDir(request.getPath()).getBytes();
-                } else {
-                    throw new NoSuchFileException("File Does Not Exist: " + request.getPath());
-                }
-            } else {
-                body = loadResource(request.getPath());
-            }
-        } else if (request.getMethod().equals(HttpMethod.HEAD)) {
+        if (isGetRequest(request)) {
+            handleGetRequest(request);
+        } else if (isHeadRequest(request)) {
             httpStatus = HttpStatus.OK;
         } else {
             httpStatus = HttpStatus.METHOD_NOT_ALLOWED;
         }
+    }
+
+    private void handleGetRequest(HttpRequest request) throws URISyntaxException, NoSuchFileException, AccessDeniedException {
+        httpStatus = HttpStatus.OK;
+        if (isDirectory(request.getPath())) {
+            if (FeatureFlagContext.getInstance().isFeatureActive(FeatureFlag.DIRECTORY_LISTING)) {
+                body = lsDir(request.getPath()).getBytes();
+            } else {
+                throw new NoSuchFileException("File Does Not Exist: " + request.getPath());
+            }
+        } else {
+            body = loadResource(request.getPath());
+        }
+    }
+
+    private boolean isHeadRequest(HttpRequest request) {
+        return request.getMethod().equals(HttpMethod.HEAD);
+    }
+
+    private boolean isGetRequest(HttpRequest request) {
+        return request.getMethod().equals(HttpMethod.GET);
     }
 
     private void close() {

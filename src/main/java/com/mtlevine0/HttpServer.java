@@ -17,7 +17,6 @@ public class HttpServer {
         logFeatureFlags();
         HttpServer server = new HttpServer();
         server.start(8080);
-
     }
 
     private static void logFeatureFlags() {
