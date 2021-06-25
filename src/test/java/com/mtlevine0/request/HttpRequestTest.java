@@ -1,7 +1,5 @@
 package com.mtlevine0.request;
 
-import com.mtlevine0.request.HttpMethod;
-import com.mtlevine0.request.HttpRequest;
 import org.junit.Before;
 import org.junit.Test;
 

@@ -1,7 +1,6 @@
 package com.mtlevine0.request;
 
 import com.mtlevine0.exception.HttpRequestParsingException;
-import com.mtlevine0.exception.MethodNotImplementedException;
 
 import java.io.IOException;
 import java.io.InputStream;
