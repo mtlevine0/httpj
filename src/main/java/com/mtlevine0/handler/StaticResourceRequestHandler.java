@@ -13,11 +13,11 @@ import java.net.URISyntaxException;
 import java.nio.file.AccessDeniedException;
 import java.nio.file.NoSuchFileException;
 
-public class DefaultRequestHandler implements RequestHandler{
+public class StaticResourceRequestHandler implements RequestHandler{
 
     private final String basePath;
 
-    public DefaultRequestHandler(String basePath) {
+    public StaticResourceRequestHandler(String basePath) {
         this.basePath = basePath;
     }
 

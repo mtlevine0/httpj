@@ -1,6 +1,8 @@
 package com.mtlevine0;
 
 import com.mtlevine0.handler.RequestHandler;
+import com.mtlevine0.handler.RequestRouter;
+import com.mtlevine0.request.HttpMethod;
 import com.mtlevine0.request.HttpRequest;
 import com.mtlevine0.response.HttpResponse;
 import com.mtlevine0.response.HttpStatus;
@@ -37,9 +39,14 @@ public class HttpServerTest {
 
     public void start(int port) throws IOException {
         Executor executor = Executors.newFixedThreadPool(10);
+
+        RequestRouter requestRouter = new RequestRouter();
+        requestRouter.registerRoute("*", HttpMethod.GET, new CustomHttpRequestHandler());
+        requestRouter.registerRoute("/matt", HttpMethod.GET, new MattHandler());
+
         serverSocket = new ServerSocket(port);
         while (true) {
-            executor.execute(new RequestDispatcher(serverSocket.accept(), "../httpj", new CustomHttpRequestHandler()));
+            executor.execute(new RequestDispatcher(serverSocket.accept(), "../httpj", requestRouter));
         }
     }
 
@@ -51,6 +58,13 @@ public class HttpServerTest {
         @Override
         public HttpResponse handleRequest(HttpRequest httpRequest) {
             return HttpResponse.builder().status(HttpStatus.NOT_FOUND).body("NOT HERE!".getBytes()).build();
+        }
+    }
+
+    public class MattHandler implements RequestHandler {
+        @Override
+        public HttpResponse handleRequest(HttpRequest httpRequest) {
+            return HttpResponse.builder().status(HttpStatus.OK).body("Cool Beans...".getBytes()).build();
         }
     }
 
