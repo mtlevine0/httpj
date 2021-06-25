@@ -1,9 +1,11 @@
 package com.mtlevine0;
 
 import com.mtlevine0.exception.HttpRequestParsingException;
+import com.mtlevine0.exception.MethodNotAllowedException;
 import com.mtlevine0.exception.MethodNotImplementedException;
 import com.mtlevine0.handler.DefaultRequestHandler;
-import com.mtlevine0.handler.RequestHandler;
+import com.mtlevine0.handler.RequestRouter;
+import com.mtlevine0.request.HttpMethod;
 import com.mtlevine0.request.HttpRequest;
 import com.mtlevine0.response.HttpResponse;
 import com.mtlevine0.response.HttpStatus;
@@ -21,20 +23,21 @@ public class RequestDispatcher implements Runnable {
     private final Socket socket;
     private OutputStream out;
     private InputStream in;
-    private RequestHandler requestHandler;
+    private RequestRouter requestRouter;
 
     public RequestDispatcher(Socket socket, String basePath) {
         this.socket = socket;
-        requestHandler = new DefaultRequestHandler(basePath);
+        requestRouter = new RequestRouter();
+        requestRouter.registerRoute("*", HttpMethod.GET, new DefaultRequestHandler(basePath));
         try {
             out = socket.getOutputStream();
             in = socket.getInputStream();
         } catch (IOException e) { }
     }
 
-    public RequestDispatcher(Socket socket, String basePath, RequestHandler requestHandler) {
+    public RequestDispatcher(Socket socket, String basePath, RequestRouter requestRouter) {
         this(socket, basePath);
-        this.requestHandler = requestHandler;
+        this.requestRouter = requestRouter;
     }
 
     @Override
@@ -43,9 +46,11 @@ public class RequestDispatcher implements Runnable {
         try {
             HttpRequest httpRequest = new HttpRequest(in);
             LOGGER.info(httpRequest.toString());
-            httpResponse = requestHandler.handleRequest(httpRequest);
+            httpResponse = requestRouter.route(httpRequest);
         } catch (MethodNotImplementedException e) {
             httpResponse = generateBasicHttpResponse(HttpStatus.NOT_IMPLEMENTED);
+        } catch(MethodNotAllowedException e) {
+            httpResponse = generateBasicHttpResponse(HttpStatus.METHOD_NOT_ALLOWED);
         } catch (NoSuchFileException e) {
             HttpStatus httpStatus = HttpStatus.NOT_FOUND;
             httpResponse = generateBasicHttpResponse(httpStatus);
