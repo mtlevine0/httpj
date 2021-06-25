@@ -50,7 +50,7 @@ public class HttpRequest {
         try {
             method = HttpMethod.valueOf(requestComponents[0]);
         } catch (IllegalArgumentException e) {
-            new MethodNotImplementedException("Method not implemented: " + requestComponents[0]);
+            throw new MethodNotImplementedException("Method not implemented: " + requestComponents[0]);
         }
         return method;
     }
