@@ -93,9 +93,9 @@ public class HttpRequestTest {
         assertEquals(mockHttpRequest.toString(), httpRequest.toString());
     }
 
-//    @Test
-//    public void GivenARawHttpRequestString_WhenParseRequest_ThenEnsureHeadersRemainInOrder() throws IOException {
-//        HttpRequest request = new HttpRequest(new ByteArrayInputStream(rawHttpRequest.toString().getBytes()));
-//        assertEquals(rawHttpRequest, request.toString());
-//    }
+    @Test
+    public void GivenARawHttpRequestString_WhenParseRequest_ThenEnsureHeadersRemainInOrder() throws IOException {
+        HttpRequest request = new HttpRequest(new ByteArrayInputStream(rawHttpRequest.toString().getBytes()));
+        assertEquals(rawHttpRequest, request.toString());
+    }
 }

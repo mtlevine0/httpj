@@ -7,6 +7,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Objects;
 
 @Value
 @Builder
@@ -32,7 +33,11 @@ public class HttpResponse {
             if (super.headers == null) {
                 super.headers = new LinkedHashMap<>();
             }
-            super.headers.put("Content-Length", String.valueOf(generateContentLength(super.body)));
+            int contentLength = 0;
+            if (Objects.nonNull(super.body)) {
+                contentLength = generateContentLength(super.body);
+            }
+            super.headers.put("Content-Length", String.valueOf(contentLength));
             return super.build();
         }
     }
@@ -45,7 +50,9 @@ public class HttpResponse {
         byte[] responseHeader = this.generateResponseHeader().getBytes();
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
         outputStream.write(responseHeader);
-        outputStream.write(body);
+        if (Objects.nonNull(body)) {
+            outputStream.write(body);
+        }
         return outputStream.toByteArray();
     }
 
