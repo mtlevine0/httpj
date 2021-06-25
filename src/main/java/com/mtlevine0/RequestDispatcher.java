@@ -3,7 +3,7 @@ package com.mtlevine0;
 import com.mtlevine0.exception.HttpRequestParsingException;
 import com.mtlevine0.exception.MethodNotAllowedException;
 import com.mtlevine0.exception.MethodNotImplementedException;
-import com.mtlevine0.handler.DefaultRequestHandler;
+import com.mtlevine0.handler.StaticResourceRequestHandler;
 import com.mtlevine0.handler.RequestRouter;
 import com.mtlevine0.request.HttpMethod;
 import com.mtlevine0.request.HttpRequest;
@@ -28,7 +28,7 @@ public class RequestDispatcher implements Runnable {
     public RequestDispatcher(Socket socket, String basePath) {
         this.socket = socket;
         requestRouter = new RequestRouter();
-        requestRouter.registerRoute("*", HttpMethod.GET, new DefaultRequestHandler(basePath));
+        registerStaticFileServer(basePath);
         try {
             out = socket.getOutputStream();
             in = socket.getInputStream();
@@ -38,6 +38,13 @@ public class RequestDispatcher implements Runnable {
     public RequestDispatcher(Socket socket, String basePath, RequestRouter requestRouter) {
         this(socket, basePath);
         this.requestRouter = requestRouter;
+        if (FeatureFlagContext.getInstance().isFeatureActive(FeatureFlag.STATIC_FILE_SERVER)) {
+            registerStaticFileServer(basePath);
+        }
+    }
+
+    private void registerStaticFileServer(String basePath) {
+        requestRouter.registerRoute("*", HttpMethod.GET, new StaticResourceRequestHandler(basePath));
     }
 
     @Override
