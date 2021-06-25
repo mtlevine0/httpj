@@ -34,7 +34,7 @@ public class HttpServer {
         Executor executor = Executors.newFixedThreadPool(10);
         serverSocket = new ServerSocket(port);
         while (true) {
-            executor.execute(new HttpRequestHandler(serverSocket.accept()));
+            executor.execute(new RequestDispatcher(serverSocket.accept(), "../httpj"));
         }
     }
 

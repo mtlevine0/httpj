@@ -1,6 +1,6 @@
 package com.mtlevine0.request;
 
-import com.mtlevine0.exception.MethodNotImplementedException;
+import com.mtlevine0.exception.HttpRequestParsingException;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -46,11 +46,11 @@ public class HttpRequest {
 
     private HttpMethod parseMethod(String[] requestLines) {
         String[] requestComponents = requestLines[0].split(" ");
-        HttpMethod method = null;
+        HttpMethod method;
         try {
             method = HttpMethod.valueOf(requestComponents[0]);
         } catch (IllegalArgumentException e) {
-            throw new MethodNotImplementedException("Method not implemented: " + requestComponents[0]);
+            throw new HttpRequestParsingException("Unable to parse request with method of: " + requestComponents[0]);
         }
         return method;
     }
@@ -97,6 +97,14 @@ public class HttpRequest {
             sb.append(requestLines[i]);
         }
         return sb.toString();
+    }
+
+    public boolean isHeadRequest() {
+        return method.equals(HttpMethod.HEAD);
+    }
+
+    public boolean isGetRequest() {
+        return method.equals(HttpMethod.GET);
     }
 
     public String getRequest() {

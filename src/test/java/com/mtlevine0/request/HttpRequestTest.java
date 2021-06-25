@@ -1,7 +1,5 @@
 package com.mtlevine0.request;
 
-import com.mtlevine0.request.HttpMethod;
-import com.mtlevine0.request.HttpRequest;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -93,9 +91,9 @@ public class HttpRequestTest {
         assertEquals(mockHttpRequest.toString(), httpRequest.toString());
     }
 
-//    @Test
-//    public void GivenARawHttpRequestString_WhenParseRequest_ThenEnsureHeadersRemainInOrder() throws IOException {
-//        HttpRequest request = new HttpRequest(new ByteArrayInputStream(rawHttpRequest.toString().getBytes()));
-//        assertEquals(rawHttpRequest, request.toString());
-//    }
+    @Test
+    public void GivenARawHttpRequestString_WhenParseRequest_ThenEnsureHeadersRemainInOrder() throws IOException {
+        HttpRequest request = new HttpRequest(new ByteArrayInputStream(rawHttpRequest.toString().getBytes()));
+        assertEquals(rawHttpRequest, request.toString());
+    }
 }
