@@ -99,6 +99,14 @@ public class HttpRequest {
         return sb.toString();
     }
 
+    public boolean isHeadRequest() {
+        return method.equals(HttpMethod.HEAD);
+    }
+
+    public boolean isGetRequest() {
+        return method.equals(HttpMethod.GET);
+    }
+
     public String getRequest() {
         return request;
     }
