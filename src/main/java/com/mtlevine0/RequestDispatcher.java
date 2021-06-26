@@ -3,9 +3,7 @@ package com.mtlevine0;
 import com.mtlevine0.exception.HttpRequestParsingException;
 import com.mtlevine0.exception.MethodNotAllowedException;
 import com.mtlevine0.exception.MethodNotImplementedException;
-import com.mtlevine0.handler.StaticResourceRequestHandler;
 import com.mtlevine0.handler.RequestRouter;
-import com.mtlevine0.request.HttpMethod;
 import com.mtlevine0.request.HttpRequest;
 import com.mtlevine0.response.HttpResponse;
 import com.mtlevine0.response.HttpStatus;
@@ -25,26 +23,22 @@ public class RequestDispatcher implements Runnable {
     private InputStream in;
     private RequestRouter requestRouter;
 
-    public RequestDispatcher(Socket socket, String basePath) {
+    private RequestDispatcher(Socket socket) {
         this.socket = socket;
-        requestRouter = new RequestRouter();
-        registerStaticFileServer(basePath);
         try {
             out = socket.getOutputStream();
             in = socket.getInputStream();
         } catch (IOException e) { }
     }
 
-    public RequestDispatcher(Socket socket, String basePath, RequestRouter requestRouter) {
-        this(socket, basePath);
-        this.requestRouter = requestRouter;
-        if (FeatureFlagContext.getInstance().isFeatureActive(FeatureFlag.STATIC_FILE_SERVER)) {
-            registerStaticFileServer(basePath);
-        }
+    public RequestDispatcher(Socket socket, String basePath) {
+        this(socket);
+        this.requestRouter = new RequestRouter(basePath);
     }
 
-    private void registerStaticFileServer(String basePath) {
-        requestRouter.registerRoute("*", HttpMethod.GET, new StaticResourceRequestHandler(basePath));
+    public RequestDispatcher(Socket socket, RequestRouter requestRouter) {
+        this(socket, new String());
+        this.requestRouter = requestRouter;
     }
 
     @Override
@@ -59,8 +53,7 @@ public class RequestDispatcher implements Runnable {
         } catch(MethodNotAllowedException e) {
             httpResponse = generateBasicHttpResponse(HttpStatus.METHOD_NOT_ALLOWED);
         } catch (NoSuchFileException e) {
-            HttpStatus httpStatus = HttpStatus.NOT_FOUND;
-            httpResponse = generateBasicHttpResponse(httpStatus);
+            httpResponse = generateBasicHttpResponse(HttpStatus.NOT_FOUND);
         } catch (AccessDeniedException e) {
             httpResponse = generateBasicHttpResponse(HttpStatus.UNAUTHORIZED);
         } catch (HttpRequestParsingException | URISyntaxException e) {
