@@ -76,7 +76,7 @@ public class RequestRouter {
             throw new IllegalArgumentException("Class of type CustomRequestHandler cannot be registered to a wildcard path.");
         }
         if (requestHandler instanceof CustomRequestHandler) {
-            this.handlers.put(new Route(path, HttpMethod.HEAD), requestHandler);
+            this.handlers.put(new Route(path, HttpMethod.HEAD), new DefaultCustomRequestHandler());
         }
         this.handlers.put(new Route(path, httpMethod), requestHandler);
     }

@@ -13,7 +13,7 @@ import java.net.URISyntaxException;
 import java.nio.file.AccessDeniedException;
 import java.nio.file.NoSuchFileException;
 
-public class RequestRouterStaticServerDisabledTest extends RequestHandlerTest{
+public class RequestRouterStaticServerDisabledTest extends RequestRouterTest {
 
     @Before
     public void setup() {
@@ -31,6 +31,11 @@ public class RequestRouterStaticServerDisabledTest extends RequestHandlerTest{
     @Test(expected = IllegalArgumentException.class)
     public void ShouldThrowIllegalArgumentException_WhenRegisteringCustomRequestHandlerToWildCardPathRoute() {
         requestRouter.registerRoute("*", HttpMethod.GET, new CustomHandler());
+    }
+
+    @Test
+    public void ShouldReturn200_WhenCustomRouteRegisteredAndRequestIsHead() throws AccessDeniedException, NoSuchFileException, URISyntaxException {
+        assertEquals(getBasicHttpResponse(null), requestRouter.route(getBasicRequest(HttpMethod.HEAD,"/test")));
     }
 
     @Test(expected = IllegalArgumentException.class)
