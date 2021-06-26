@@ -6,7 +6,9 @@ import com.mtlevine0.response.HttpResponse;
 import com.mtlevine0.response.HttpStatus;
 import org.junit.Before;
 
-public class RequestHandlerTest {
+import java.util.Objects;
+
+public class RequestRouterTest {
 
     protected RequestRouter requestRouter;
     protected String basePath;
@@ -32,14 +34,18 @@ public class RequestHandlerTest {
         }
     }
 
-    protected HttpRequest getBasicGetRequest(String path) {
+    protected HttpRequest getBasicRequest(HttpMethod method, String path) {
         HttpRequest request = new HttpRequest();
         request.setPath(path);
-        request.setMethod(HttpMethod.GET);
+        request.setMethod(method);
         return request;
     }
 
+    protected HttpRequest getBasicGetRequest(String path) {
+        return getBasicRequest(HttpMethod.GET, path);
+    }
+
     protected HttpResponse getBasicHttpResponse(String body) {
-        return HttpResponse.builder().body(body.getBytes()).status(HttpStatus.OK).build();
+        return HttpResponse.builder().body(Objects.nonNull(body) ? body.getBytes() : null).status(HttpStatus.OK).build();
     }
 }

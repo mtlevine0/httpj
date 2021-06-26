@@ -13,7 +13,7 @@ import java.nio.file.NoSuchFileException;
 
 import static org.junit.Assert.assertEquals;
 
-public class RequestRouterStaticServerEnabledTest extends RequestHandlerTest {
+public class RequestRouterStaticServerEnabledTest extends RequestRouterTest {
 
     @Before
     public void setup() {
@@ -33,16 +33,6 @@ public class RequestRouterStaticServerEnabledTest extends RequestHandlerTest {
     public void ShouldExecuteWildCardPathCustomRequestHandler_WhenRequestPathDoesNotMatchStaticPathRoutes() throws AccessDeniedException, NoSuchFileException, URISyntaxException {
         requestRouter.registerRoute("*", HttpMethod.GET, new RequestRouterStaticServerEnabledTest.DefaultRequestHandler());
         assertEquals(getBasicHttpResponse("Default Body!"), requestRouter.route(getBasicGetRequest("/")));
-    }
-
-    @Test(expected = NoSuchFileException.class)
-    public void ShouldThrowMethodNotAllowedException_WhenRequestDoesNotMatchRoute() throws AccessDeniedException, NoSuchFileException, URISyntaxException {
-        requestRouter.route(getBasicGetRequest("/does-not-exist"));
-    }
-
-    @Test
-    public void ShouldReturnResource_WhenRequestPathMatchesValidResource() throws AccessDeniedException, NoSuchFileException, URISyntaxException {
-        assertEquals(getBasicHttpResponse("this is a test file"), requestRouter.route(getBasicGetRequest("/src/main/resources/images/test.txt")));
     }
 
 }
