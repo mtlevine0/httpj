@@ -2,7 +2,6 @@ package com.mtlevine0.handler;
 
 import com.mtlevine0.FeatureFlag;
 import com.mtlevine0.FeatureFlagContext;
-import com.mtlevine0.exception.MethodNotImplementedException;
 import com.mtlevine0.request.HttpRequest;
 import com.mtlevine0.resource.DirectoryUtil;
 import com.mtlevine0.resource.ResourceUtil;
@@ -23,16 +22,6 @@ public class StaticResourceRequestHandler implements RequestHandler {
 
     @Override
     public HttpResponse handleRequest(HttpRequest request) throws URISyntaxException, AccessDeniedException, NoSuchFileException {
-        HttpResponse httpResponse;
-        if (request.isGetRequest()) {
-            httpResponse = handleGetRequest(request);
-        } else {
-            throw new MethodNotImplementedException("Request not implemented: " + request.getMethod().name());
-        }
-        return httpResponse;
-    }
-
-    private HttpResponse handleGetRequest(HttpRequest request) throws URISyntaxException, NoSuchFileException, AccessDeniedException {
         byte[] body;
         if (ResourceUtil.isDirectory(basePath + request.getPath())) {
             if (FeatureFlagContext.getInstance().isFeatureActive(FeatureFlag.DIRECTORY_LISTING)) {
