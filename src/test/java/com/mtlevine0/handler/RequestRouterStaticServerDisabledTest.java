@@ -13,7 +13,7 @@ import java.net.URISyntaxException;
 import java.nio.file.AccessDeniedException;
 import java.nio.file.NoSuchFileException;
 
-public class RequestRouterTestStaticServerDisabledTest extends RequestHandlerTest{
+public class RequestRouterStaticServerDisabledTest extends RequestHandlerTest{
 
     @Before
     public void setup() {
