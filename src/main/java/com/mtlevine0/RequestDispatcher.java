@@ -53,8 +53,7 @@ public class RequestDispatcher implements Runnable {
         } catch(MethodNotAllowedException e) {
             httpResponse = generateBasicHttpResponse(HttpStatus.METHOD_NOT_ALLOWED);
         } catch (NoSuchFileException e) {
-            HttpStatus httpStatus = HttpStatus.NOT_FOUND;
-            httpResponse = generateBasicHttpResponse(httpStatus);
+            httpResponse = generateBasicHttpResponse(HttpStatus.NOT_FOUND);
         } catch (AccessDeniedException e) {
             httpResponse = generateBasicHttpResponse(HttpStatus.UNAUTHORIZED);
         } catch (HttpRequestParsingException | URISyntaxException e) {
