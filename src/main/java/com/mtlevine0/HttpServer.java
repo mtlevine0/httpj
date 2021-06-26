@@ -48,7 +48,7 @@ public class HttpServer {
 
         serverSocket = new ServerSocket(port);
         while (true) {
-            executor.execute(new RequestDispatcher(serverSocket.accept(), basePath, requestRouter));
+            executor.execute(new RequestDispatcher(serverSocket.accept(), requestRouter));
         }
     }
 

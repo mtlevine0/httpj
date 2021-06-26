@@ -23,17 +23,21 @@ public class RequestDispatcher implements Runnable {
     private InputStream in;
     private RequestRouter requestRouter;
 
-    public RequestDispatcher(Socket socket, String basePath) {
+    private RequestDispatcher(Socket socket) {
         this.socket = socket;
-        requestRouter = new RequestRouter(basePath);
         try {
             out = socket.getOutputStream();
             in = socket.getInputStream();
         } catch (IOException e) { }
     }
 
-    public RequestDispatcher(Socket socket, String basePath, RequestRouter requestRouter) {
-        this(socket, basePath);
+    public RequestDispatcher(Socket socket, String basePath) {
+        this(socket);
+        this.requestRouter = new RequestRouter(basePath);
+    }
+
+    public RequestDispatcher(Socket socket, RequestRouter requestRouter) {
+        this(socket, new String());
         this.requestRouter = requestRouter;
     }
 
