@@ -38,15 +38,16 @@ public class HttpServerTest {
     }
 
     public void start(int port) throws IOException {
+        String basePath = "../httpj";
         Executor executor = Executors.newFixedThreadPool(10);
 
-        RequestRouter requestRouter = new RequestRouter();
+        RequestRouter requestRouter = new RequestRouter(basePath);
         requestRouter.registerRoute("*", HttpMethod.GET, new CustomHttpRequestHandler());
         requestRouter.registerRoute("/matt", HttpMethod.GET, new MattHandler());
 
         serverSocket = new ServerSocket(port);
         while (true) {
-            executor.execute(new RequestDispatcher(serverSocket.accept(), "../httpj", requestRouter));
+            executor.execute(new RequestDispatcher(serverSocket.accept(), basePath, requestRouter));
         }
     }
 

@@ -27,8 +27,7 @@ public class RequestDispatcher implements Runnable {
 
     public RequestDispatcher(Socket socket, String basePath) {
         this.socket = socket;
-        requestRouter = new RequestRouter();
-        registerStaticFileServer(basePath);
+        requestRouter = new RequestRouter(basePath);
         try {
             out = socket.getOutputStream();
             in = socket.getInputStream();
@@ -38,13 +37,6 @@ public class RequestDispatcher implements Runnable {
     public RequestDispatcher(Socket socket, String basePath, RequestRouter requestRouter) {
         this(socket, basePath);
         this.requestRouter = requestRouter;
-        if (FeatureFlagContext.getInstance().isFeatureActive(FeatureFlag.STATIC_FILE_SERVER)) {
-            registerStaticFileServer(basePath);
-        }
-    }
-
-    private void registerStaticFileServer(String basePath) {
-        requestRouter.registerRoute("*", HttpMethod.GET, new StaticResourceRequestHandler(basePath));
     }
 
     @Override

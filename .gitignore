@@ -27,6 +27,7 @@ target/
 
 # Intellij
 *.idea/
+*.iml
 
 # Media
 *.mp3

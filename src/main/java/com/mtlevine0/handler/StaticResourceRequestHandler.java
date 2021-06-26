@@ -13,7 +13,7 @@ import java.net.URISyntaxException;
 import java.nio.file.AccessDeniedException;
 import java.nio.file.NoSuchFileException;
 
-public class StaticResourceRequestHandler implements RequestHandler{
+public class StaticResourceRequestHandler implements RequestHandler {
 
     private final String basePath;
 
@@ -26,8 +26,6 @@ public class StaticResourceRequestHandler implements RequestHandler{
         HttpResponse httpResponse;
         if (request.isGetRequest()) {
             httpResponse = handleGetRequest(request);
-        } else if (request.isHeadRequest()) {
-            httpResponse = HttpResponse.builder().status(HttpStatus.OK).build();
         } else {
             throw new MethodNotImplementedException("Request not implemented: " + request.getMethod().name());
         }

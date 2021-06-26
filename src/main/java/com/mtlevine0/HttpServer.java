@@ -1,5 +1,6 @@
 package com.mtlevine0;
 
+import com.mtlevine0.handler.CustomRequestHandler;
 import com.mtlevine0.handler.RequestHandler;
 import com.mtlevine0.handler.RequestRouter;
 import com.mtlevine0.request.HttpMethod;
@@ -9,6 +10,9 @@ import com.mtlevine0.response.HttpStatus;
 
 import java.io.IOException;
 import java.net.ServerSocket;
+import java.net.URISyntaxException;
+import java.nio.file.AccessDeniedException;
+import java.nio.file.NoSuchFileException;
 import java.time.Instant;
 import java.util.Map;
 import java.util.concurrent.Executor;
@@ -39,14 +43,16 @@ public class HttpServer {
     }
 
     public void start(int port) throws IOException {
+        String basePath = "../httpj";
         Executor executor = Executors.newFixedThreadPool(10);
 
-        RequestRouter requestRouter = new RequestRouter();
-        requestRouter.registerRoute("/info", HttpMethod.GET, new CustomRequestHandler());
+        RequestRouter requestRouter = new RequestRouter(basePath);
+        requestRouter.registerRoute("*", HttpMethod.GET, new InfoHandler());
+//        requestRouter.registerRoute("/info", HttpMethod.GET, new CustomHandler());
 
         serverSocket = new ServerSocket(port);
         while (true) {
-            executor.execute(new RequestDispatcher(serverSocket.accept(), "../httpj", requestRouter));
+            executor.execute(new RequestDispatcher(serverSocket.accept(), basePath, requestRouter));
         }
     }
 
@@ -54,7 +60,14 @@ public class HttpServer {
         serverSocket.close();
     }
 
-    public class CustomRequestHandler implements RequestHandler {
+    public class CustomHandler implements CustomRequestHandler {
+        @Override
+        public HttpResponse handleRequest(HttpRequest httpRequest) {
+            return HttpResponse.builder().status(HttpStatus.OK).body("Custom!".getBytes()).build();
+        }
+    }
+
+    public class InfoHandler implements CustomRequestHandler {
         @Override
         public HttpResponse handleRequest(HttpRequest httpRequest) {
             StringBuilder sb = new StringBuilder();
