@@ -1,7 +1,6 @@
 package com.mtlevine0;
 
 import com.mtlevine0.handler.CustomRequestHandler;
-import com.mtlevine0.handler.RequestHandler;
 import com.mtlevine0.handler.RequestRouter;
 import com.mtlevine0.request.HttpMethod;
 import com.mtlevine0.request.HttpRequest;
@@ -10,9 +9,6 @@ import com.mtlevine0.response.HttpStatus;
 
 import java.io.IOException;
 import java.net.ServerSocket;
-import java.net.URISyntaxException;
-import java.nio.file.AccessDeniedException;
-import java.nio.file.NoSuchFileException;
 import java.time.Instant;
 import java.util.Map;
 import java.util.concurrent.Executor;
@@ -47,7 +43,7 @@ public class HttpServer {
         Executor executor = Executors.newFixedThreadPool(10);
 
         RequestRouter requestRouter = new RequestRouter(basePath);
-        requestRouter.registerRoute("*", HttpMethod.GET, new InfoHandler());
+        requestRouter.registerRoute("/info", HttpMethod.GET, new InfoHandler());
 //        requestRouter.registerRoute("/info", HttpMethod.GET, new CustomHandler());
 
         serverSocket = new ServerSocket(port);

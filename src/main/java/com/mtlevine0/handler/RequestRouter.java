@@ -26,7 +26,7 @@ public class RequestRouter {
     public HttpResponse route(HttpRequest httpRequest) throws AccessDeniedException, NoSuchFileException,
             URISyntaxException, MethodNotAllowedException {
         HttpResponse response = handleRoute(httpRequest);
-        if (isWildCardPath(httpRequest, response)) {
+        if (isWildCardPath(httpRequest, response) && Objects.isNull(response)) {
             response = handlers.get(new Route("*", httpRequest.getMethod())).handleRequest(httpRequest);
         }
         handleRouteNotMatched(httpRequest, response);
@@ -35,17 +35,15 @@ public class RequestRouter {
 
     private HttpResponse handleRoute(HttpRequest httpRequest) throws URISyntaxException, AccessDeniedException, NoSuchFileException {
         HttpResponse response = null;
-        for (Route route : handlers.keySet()) {
-            if (route.getPath().equals(httpRequest.getPath()) && route.getMethod().equals(httpRequest.getMethod())) {
-                response = handlers.get(route).handleRequest(httpRequest);
-            }
+        Route route = new Route(httpRequest.getPath(), httpRequest.getMethod());
+        if (handlers.containsKey(route)) {
+            response = handlers.get(route).handleRequest(httpRequest);
         }
         return response;
     }
 
     private boolean isWildCardPath(HttpRequest request, HttpResponse response) {
-        Route route = new Route("*", request.getMethod());
-        return handlers.containsKey(route) && Objects.isNull(response);
+        return handlers.containsKey(new Route("*", request.getMethod())) ;
     }
 
     private void handleRouteNotMatched(HttpRequest httpRequest, HttpResponse response) {
