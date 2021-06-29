@@ -59,6 +59,9 @@ public class RequestDispatcher implements Runnable {
         } catch (HttpRequestParsingException | URISyntaxException e) {
             e.printStackTrace();
             httpResponse = generateBasicHttpResponse(HttpStatus.BAD_REQUEST);
+        } catch (Exception e) {
+            e.printStackTrace();
+            httpResponse = generateBasicHttpResponse(HttpStatus.INTERNAL_SERVER_ERROR);
         } finally {
             handleResponse(httpResponse);
             close();
