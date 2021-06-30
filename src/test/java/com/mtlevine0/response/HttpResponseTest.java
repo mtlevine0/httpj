@@ -1,7 +1,5 @@
 package com.mtlevine0.response;
 
-import com.mtlevine0.response.HttpResponse;
-import com.mtlevine0.response.HttpStatus;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -22,7 +20,7 @@ public class HttpResponseTest {
     }
 
     private String generateRawHttpResponse() {
-        return "HTTP/1.1 200 Ok\r\n" +
+        return "HTTP/1.0 200 Ok\r\n" +
                 "Date: Mon, 27 Jul 2009 12:28:53 GMT\r\n" +
                 "Server: Apache/2.2.14 (Win32)\r\n" +
                 "Last-Modified: Wed, 22 Jul 2009 19:15:56 GMT\r\n" +
