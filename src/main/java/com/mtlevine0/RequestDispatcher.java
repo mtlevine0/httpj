@@ -10,7 +10,6 @@ import com.mtlevine0.response.HttpStatus;
 
 import java.io.*;
 import java.net.Socket;
-import java.net.URISyntaxException;
 import java.nio.file.AccessDeniedException;
 import java.nio.file.NoSuchFileException;
 import java.util.logging.Logger;
@@ -56,9 +55,12 @@ public class RequestDispatcher implements Runnable {
             httpResponse = generateBasicHttpResponse(HttpStatus.NOT_FOUND);
         } catch (AccessDeniedException e) {
             httpResponse = generateBasicHttpResponse(HttpStatus.UNAUTHORIZED);
-        } catch (HttpRequestParsingException | URISyntaxException e) {
+        } catch (HttpRequestParsingException e) {
             e.printStackTrace();
             httpResponse = generateBasicHttpResponse(HttpStatus.BAD_REQUEST);
+        } catch (Exception e) {
+            e.printStackTrace();
+            httpResponse = generateBasicHttpResponse(HttpStatus.INTERNAL_SERVER_ERROR);
         } finally {
             handleResponse(httpResponse);
             close();

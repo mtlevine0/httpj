@@ -9,9 +9,7 @@ import org.junit.Before;
 import org.junit.Test;
 import static org.junit.Assert.*;
 
-import java.net.URISyntaxException;
-import java.nio.file.AccessDeniedException;
-import java.nio.file.NoSuchFileException;
+import java.io.IOException;
 
 public class RequestRouterStaticServerDisabledTest extends RequestRouterTest {
 
@@ -24,7 +22,7 @@ public class RequestRouterStaticServerDisabledTest extends RequestRouterTest {
     }
 
     @Test
-    public void ShouldExecuteRequestHandler_WhenHttpRequestMatchesRegisteredRoute() throws AccessDeniedException, NoSuchFileException, URISyntaxException {
+    public void ShouldExecuteRequestHandler_WhenHttpRequestMatchesRegisteredRoute() throws IOException {
         assertEquals(getBasicHttpResponse("Custom Body!"), requestRouter.route(getBasicGetRequest("/test")));
     }
 
@@ -34,7 +32,7 @@ public class RequestRouterStaticServerDisabledTest extends RequestRouterTest {
     }
 
     @Test
-    public void ShouldReturn200_WhenCustomRouteRegisteredAndRequestIsHead() throws AccessDeniedException, NoSuchFileException, URISyntaxException {
+    public void ShouldReturn200_WhenCustomRouteRegisteredAndRequestIsHead() throws IOException {
         assertEquals(getBasicHttpResponse(null), requestRouter.route(getBasicRequest(HttpMethod.HEAD,"/test")));
     }
 
@@ -45,20 +43,20 @@ public class RequestRouterStaticServerDisabledTest extends RequestRouterTest {
     }
 
     @Test
-    public void ShouldExecuteRequestHandler_WhenRequestHandlerRegisteredToWildCardRouteAndHttpRequestMatchesRoute() throws AccessDeniedException, NoSuchFileException, URISyntaxException {
+    public void ShouldExecuteRequestHandler_WhenRequestHandlerRegisteredToWildCardRouteAndHttpRequestMatchesRoute() throws IOException {
         requestRouter.registerRoute("*", HttpMethod.GET, new DefaultRequestHandler());
         assertEquals(getBasicHttpResponse("Default Body!"), requestRouter.route(getBasicGetRequest("/")));
     }
 
     @Test
-    public void ShouldExecuteWildCardPathCustomRequestHandler_WhenRequestPathDoesNotMatchStaticPathRoutes() throws AccessDeniedException, NoSuchFileException, URISyntaxException {
+    public void ShouldExecuteWildCardPathCustomRequestHandler_WhenRequestPathDoesNotMatchStaticPathRoutes() throws IOException {
         FeatureFlagContext.getInstance().disableFeature(FeatureFlag.STATIC_FILE_SERVER);
         requestRouter.registerRoute("*", HttpMethod.GET, new DefaultRequestHandler());
         assertEquals(getBasicHttpResponse("Default Body!"), requestRouter.route(getBasicGetRequest("/")));
     }
 
     @Test(expected = MethodNotAllowedException.class)
-    public void ShouldThrowMethodNotAllowedException_WhenRequestDoesNotMatchRoute() throws AccessDeniedException, NoSuchFileException, URISyntaxException {
+    public void ShouldThrowMethodNotAllowedException_WhenRequestDoesNotMatchRoute() throws IOException {
         FeatureFlagContext.getInstance().disableFeature(FeatureFlag.STATIC_FILE_SERVER);
         requestRouter.route(getBasicGetRequest("/does-not-exist"));
     }
