@@ -68,20 +68,22 @@ public class HttpRequest {
         if (path.contains("?")) {
             try {
                 List<String> rawQueryParams = Arrays.asList(path.split("\\?")[1].split("&"));
-                return generateParamsMap(rawQueryParams);
+                return generateQueryParamsMap(rawQueryParams);
             } catch(ArrayIndexOutOfBoundsException e) { }
         }
         return new LinkedHashMap<>();
     }
 
-    private Map<String, String> generateParamsMap(List<String> rawQueryParams) {
+    private Map<String, String> generateQueryParamsMap(List<String> rawQueryParams) {
         Map<String, String> queryParams = new LinkedHashMap<>();
         for (String rawParam : rawQueryParams) {
             try {
                 String key = rawParam.split("=")[0];
                 String value = rawParam.split("=")[1];
                 queryParams.put(key, value);
-            } catch (ArrayIndexOutOfBoundsException e) { }
+            } catch (ArrayIndexOutOfBoundsException e) {
+                queryParams.put(rawParam.split("=")[0], "");
+            }
         }
         return queryParams;
     }
@@ -150,6 +152,9 @@ public class HttpRequest {
     }
 
     public String getPath() {
+        if (path.contains("?")) {
+            return path.split("\\?")[0];
+        }
         return path;
     }
 

@@ -129,7 +129,7 @@ public class HttpRequestTest {
     public void getQueryParams_ShouldReturnValue_WhenHttpRequestPathIncludesQueryParamWithNoValue() {
         InputStream in = new ByteArrayInputStream(generateRawHttpRequest("?foo=&bar=456").getBytes());
         HttpRequest request = new HttpRequest(in);
-        assertEquals(null, request.getQueryParams().get("foo"));
+        assertEquals("", request.getQueryParams().get("foo"));
         assertEquals("456", request.getQueryParams().get("bar"));
         assertEquals(null, request.getQueryParams().get("dne"));
     }
