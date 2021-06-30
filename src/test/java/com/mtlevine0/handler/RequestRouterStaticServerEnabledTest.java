@@ -7,9 +7,7 @@ import com.mtlevine0.request.HttpMethod;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.net.URISyntaxException;
-import java.nio.file.AccessDeniedException;
-import java.nio.file.NoSuchFileException;
+import java.io.IOException;
 
 import static org.junit.Assert.assertEquals;
 
@@ -24,13 +22,13 @@ public class RequestRouterStaticServerEnabledTest extends RequestRouterTest {
     }
 
     @Test(expected = IllegalArgumentException.class)
-    public void ShouldExecuteRequestHandler_WhenRequestHandlerRegisteredToWildCardRouteAndHttpRequestMatchesRoute() throws AccessDeniedException, NoSuchFileException, URISyntaxException {
+    public void ShouldExecuteRequestHandler_WhenRequestHandlerRegisteredToWildCardRouteAndHttpRequestMatchesRoute() throws IOException {
         requestRouter.registerRoute("*", HttpMethod.GET, new RequestRouterStaticServerEnabledTest.DefaultRequestHandler());
         assertEquals(getBasicHttpResponse("Default Body!"), requestRouter.route(getBasicGetRequest("/")));
     }
 
     @Test(expected = IllegalArgumentException.class)
-    public void ShouldExecuteWildCardPathCustomRequestHandler_WhenRequestPathDoesNotMatchStaticPathRoutes() throws AccessDeniedException, NoSuchFileException, URISyntaxException {
+    public void ShouldExecuteWildCardPathCustomRequestHandler_WhenRequestPathDoesNotMatchStaticPathRoutes() throws IOException {
         requestRouter.registerRoute("*", HttpMethod.GET, new RequestRouterStaticServerEnabledTest.DefaultRequestHandler());
         assertEquals(getBasicHttpResponse("Default Body!"), requestRouter.route(getBasicGetRequest("/")));
     }

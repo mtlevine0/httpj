@@ -8,8 +8,7 @@ import com.mtlevine0.resource.ResourceUtil;
 import com.mtlevine0.response.HttpResponse;
 import com.mtlevine0.response.HttpStatus;
 
-import java.net.URISyntaxException;
-import java.nio.file.AccessDeniedException;
+import java.io.IOException;
 import java.nio.file.NoSuchFileException;
 
 public class StaticResourceRequestHandler implements RequestHandler {
@@ -21,16 +20,16 @@ public class StaticResourceRequestHandler implements RequestHandler {
     }
 
     @Override
-    public HttpResponse handleRequest(HttpRequest request) throws URISyntaxException, AccessDeniedException, NoSuchFileException {
+    public HttpResponse handleRequest(HttpRequest request) throws IOException {
         byte[] body;
-        if (ResourceUtil.isDirectory(basePath + request.getPath())) {
+        if (ResourceUtil.isDirectory(basePath, request.getPath())) {
             if (FeatureFlagContext.getInstance().isFeatureActive(FeatureFlag.DIRECTORY_LISTING)) {
                 body = DirectoryUtil.lsDir(basePath, request.getPath()).getBytes();
             } else {
                 throw new NoSuchFileException("File Does Not Exist: " + request.getPath());
             }
         } else {
-            body = ResourceUtil.loadResource(basePath + request.getPath());
+            body = ResourceUtil.loadResource(basePath, request.getPath());
         }
         return HttpResponse.builder().status(HttpStatus.OK).body(body).build();
     }

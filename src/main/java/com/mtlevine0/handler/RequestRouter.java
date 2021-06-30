@@ -7,9 +7,7 @@ import com.mtlevine0.request.HttpMethod;
 import com.mtlevine0.request.HttpRequest;
 import com.mtlevine0.response.HttpResponse;
 
-import java.net.URISyntaxException;
-import java.nio.file.AccessDeniedException;
-import java.nio.file.NoSuchFileException;
+import java.io.IOException;
 import java.util.*;
 
 public class RequestRouter {
@@ -23,8 +21,7 @@ public class RequestRouter {
         }
     }
 
-    public HttpResponse route(HttpRequest httpRequest) throws AccessDeniedException, NoSuchFileException,
-            URISyntaxException, MethodNotAllowedException {
+    public HttpResponse route(HttpRequest httpRequest) throws IOException, MethodNotAllowedException {
         HttpResponse response = handleRoute(httpRequest);
         if (isWildCardPath(httpRequest, response) && Objects.isNull(response)) {
             response = handlers.get(new Route("*", httpRequest.getMethod())).handleRequest(httpRequest);
@@ -33,7 +30,7 @@ public class RequestRouter {
         return response;
     }
 
-    private HttpResponse handleRoute(HttpRequest httpRequest) throws URISyntaxException, AccessDeniedException, NoSuchFileException {
+    private HttpResponse handleRoute(HttpRequest httpRequest) throws IOException {
         HttpResponse response = null;
         Route route = new Route(httpRequest.getPath(), httpRequest.getMethod());
         if (handlers.containsKey(route)) {

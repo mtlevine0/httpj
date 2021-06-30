@@ -5,36 +5,39 @@ import com.mtlevine0.FeatureFlagContext;
 
 import java.io.File;
 import java.io.IOException;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.nio.file.AccessDeniedException;
-import java.nio.file.Files;
-import java.nio.file.NoSuchFileException;
-import java.nio.file.Paths;
+import java.nio.file.*;
 
 public class ResourceUtil {
 
-    public static byte[] loadResource(String path) throws URISyntaxException, NoSuchFileException, AccessDeniedException {
+    public static byte[] loadResource(String basePath, String path) throws IOException {
         byte[] resource = null;
         try {
-            resource = Files.readAllBytes(Paths.get(sanitizePath(path)));
-        } catch (NoSuchFileException | URISyntaxException | AccessDeniedException e) {
-            throw e;
+            resource = Files.readAllBytes(Paths.get(sanitizePath(basePath, path)).normalize());
         } catch (IOException e) {
-            e.printStackTrace();
+            throw e;
         }
         return resource;
     }
 
-    public static boolean isDirectory(String path) throws URISyntaxException {
-        return new File(sanitizePath(path)).isDirectory();
+    public static boolean isDirectory(String basePath, String path) throws IOException {
+        return new File(sanitizePath(basePath, path)).isDirectory();
     }
 
-    public static String sanitizePath(String path) throws URISyntaxException {
+    public static String sanitizePath(String basePath, String path) throws IOException {
         if (FeatureFlagContext.getInstance().isFeatureActive(FeatureFlag.SANITIZE_PATH)) {
-            return new URI(path).normalize().getPath();
+            String canonicalPath = new File(basePath + path).getCanonicalPath();
+            String canonicalBasePath = new File(basePath).getCanonicalPath();
+            if (isChild(Path.of(canonicalPath), Path.of(canonicalBasePath))) {
+                return canonicalPath;
+            } else {
+                throw new AccessDeniedException(canonicalPath);
+            }
         }
-        return path;
+        return basePath + path;
+    }
+
+    private static boolean isChild(Path child, Path basePath) {
+        return child.startsWith(basePath);
     }
 
 }

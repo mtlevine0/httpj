@@ -4,7 +4,6 @@ import org.junit.Before;
 import org.junit.Test;
 
 import java.io.ByteArrayInputStream;
-import java.io.IOException;
 import java.io.InputStream;
 import java.util.HashMap;
 import java.util.Map;
@@ -17,7 +16,7 @@ public class HttpRequestTest {
     String rawHttpRequest;
     
     @Before
-    public void setup() throws IOException {
+    public void setup() {
         mockHttpRequest = generateMockHttpRequest();
         InputStream in = new ByteArrayInputStream(mockHttpRequest.toString().getBytes());
         httpRequest = new HttpRequest(in);
@@ -92,8 +91,8 @@ public class HttpRequestTest {
     }
 
     @Test
-    public void GivenARawHttpRequestString_WhenParseRequest_ThenEnsureHeadersRemainInOrder() throws IOException {
-        HttpRequest request = new HttpRequest(new ByteArrayInputStream(rawHttpRequest.toString().getBytes()));
+    public void GivenARawHttpRequestString_WhenParseRequest_ThenEnsureHeadersRemainInOrder() {
+        HttpRequest request = new HttpRequest(new ByteArrayInputStream(rawHttpRequest.getBytes()));
         assertEquals(rawHttpRequest, request.toString());
     }
 }
