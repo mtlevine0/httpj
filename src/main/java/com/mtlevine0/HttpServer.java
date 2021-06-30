@@ -69,8 +69,13 @@ public class HttpServer {
             StringBuilder sb = new StringBuilder();
             sb.append(Instant.now().toString() + "\n");
             sb.append("Custom Request Handler!" + "\n\n");
+            sb.append("Request Headers:\n");
             for (String key : httpRequest.getHeaders().keySet()) {
                 sb.append(key + ": " + httpRequest.getHeaders().get(key) + "\n");
+            }
+            sb.append("Query Params:\n");
+            for (String key : httpRequest.getQueryParams().keySet()) {
+                sb.append(key + ": " + httpRequest.getQueryParams().get(key) + "\n");
             }
             return HttpResponse.builder().status(HttpStatus.OK).body(sb.toString().getBytes()).build();
         }
