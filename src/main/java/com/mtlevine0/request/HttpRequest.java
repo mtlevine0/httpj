@@ -4,7 +4,9 @@ import com.mtlevine0.exception.HttpRequestParsingException;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Arrays;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 
 public class HttpRequest {
@@ -13,6 +15,7 @@ public class HttpRequest {
     private String path;
     private String protocolVersion;
     private Map<String, String> headers;
+    private Map<String, String> queryParams;
     private String body;
 
     public HttpRequest() {}
@@ -41,6 +44,7 @@ public class HttpRequest {
         path = parsePath(requestLines);
         protocolVersion = parseProtocolVersion(requestLines);
         headers = parseHeaders(requestLines);
+        queryParams = parseQueryParams(path);
         body = parseBody(requestLines);
     }
 
@@ -58,6 +62,30 @@ public class HttpRequest {
     private String parsePath(String[] requestLines) {
         String[] requestComponents = requestLines[0].split(" ");
         return requestComponents[1];
+    }
+
+    private Map<String, String> parseQueryParams(String path) {
+        if (path.contains("?")) {
+            try {
+                List<String> rawQueryParams = Arrays.asList(path.split("\\?")[1].split("&"));
+                return generateQueryParamsMap(rawQueryParams);
+            } catch(ArrayIndexOutOfBoundsException e) { }
+        }
+        return new LinkedHashMap<>();
+    }
+
+    private Map<String, String> generateQueryParamsMap(List<String> rawQueryParams) {
+        Map<String, String> queryParams = new LinkedHashMap<>();
+        for (String rawParam : rawQueryParams) {
+            try {
+                String key = rawParam.split("=")[0];
+                String value = rawParam.split("=")[1];
+                queryParams.put(key, value);
+            } catch (ArrayIndexOutOfBoundsException e) {
+                queryParams.put(rawParam.split("=")[0], "");
+            }
+        }
+        return queryParams;
     }
 
     private String parseProtocolVersion(String[] requestLines) {
@@ -124,6 +152,9 @@ public class HttpRequest {
     }
 
     public String getPath() {
+        if (path.contains("?")) {
+            return path.split("\\?")[0];
+        }
         return path;
     }
 
@@ -145,6 +176,14 @@ public class HttpRequest {
 
     public void setHeaders(Map<String, String> headers) {
         this.headers = headers;
+    }
+
+    public Map<String, String> getQueryParams() {
+        return queryParams;
+    }
+
+    public void setQueryParams(Map<String, String> queryParams) {
+        this.queryParams = queryParams;
     }
 
     public String getBody() {

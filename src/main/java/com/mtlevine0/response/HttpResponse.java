@@ -12,7 +12,7 @@ import java.util.Objects;
 @Value
 @Builder
 public class HttpResponse {
-    private String protocolVersion = "HTTP/1.1";
+    private String protocolVersion = "HTTP/1.0";
     private HttpStatus status;
     private Map<String, String> headers;
     private byte[] body;
