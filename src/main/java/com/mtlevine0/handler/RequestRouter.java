@@ -6,6 +6,7 @@ import com.mtlevine0.exception.MethodNotAllowedException;
 import com.mtlevine0.request.HttpMethod;
 import com.mtlevine0.request.HttpRequest;
 import com.mtlevine0.response.HttpResponse;
+import com.mtlevine0.response.HttpStatus;
 
 import java.io.IOException;
 import java.util.*;
@@ -15,6 +16,7 @@ public class RequestRouter {
 
     public RequestRouter(String basePath) {
         handlers = new LinkedHashMap<>();
+        registerRoute("/routes", HttpMethod.GET, new RouteInfoHandler(this));
         registerRoute("*", HttpMethod.HEAD, new DefaultRequestHandler(basePath));
         if (FeatureFlagContext.getInstance().isFeatureActive(FeatureFlag.STATIC_FILE_SERVER)) {
             registerRoute("*", HttpMethod.GET, new StaticResourceRequestHandler(basePath));
@@ -82,6 +84,15 @@ public class RequestRouter {
         return this.handlers;
     }
 
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+        for (Route route : handlers.keySet()) {
+            sb.append(route.getMethod() + " - " + route.getPath() + " - " + handlers.get(route).getClass().getName() + "\n");
+        }
+        return sb.toString();
+    }
+
     private class Route {
         private String path;
         private HttpMethod method;
@@ -110,6 +121,19 @@ public class RequestRouter {
         @Override
         public int hashCode() {
             return Objects.hash(path, method);
+        }
+    }
+
+    public class RouteInfoHandler implements CustomRequestHandler {
+        private RequestRouter requestRouter;
+
+        public RouteInfoHandler(RequestRouter router) {
+            this.requestRouter = router;
+        }
+
+        @Override
+        public HttpResponse handleRequest(HttpRequest httpRequest) {
+            return HttpResponse.builder().body(requestRouter.toString().getBytes()).status(HttpStatus.OK).build();
         }
     }
 }
