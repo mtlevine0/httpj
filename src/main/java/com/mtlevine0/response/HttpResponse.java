@@ -18,6 +18,8 @@ public class HttpResponse {
     public static final String HTTP_PROTOCOL_VERSION = "HTTP/1.1";
     private static final String HTTP_NEW_LINE = "\r\n";
     private static final String CONTENT_LENGTH_HEADER = "Content-Length";
+    private static final String CONTENT_ENCODING_HEADER = "Content-Encoding";
+    private static final String GZIP_ENCODING = "gzip";
     
     private HttpStatus status;
     private Map<String, String> headers;
@@ -36,7 +38,7 @@ public class HttpResponse {
     public byte[] getResponse() throws IOException {
         byte[] bodyBytes = gzipBody();
         if (FeatureFlagContext.getInstance().isFeatureActive(FeatureFlag.GZIP_ENCODING)) {
-            headers.put("Content-Encoding", "gzip");
+            headers.put(CONTENT_ENCODING_HEADER, GZIP_ENCODING);
             headers.put(CONTENT_LENGTH_HEADER, String.valueOf(bodyBytes.length));
         } else {
             headers.put(CONTENT_LENGTH_HEADER, String.valueOf(body.length));
