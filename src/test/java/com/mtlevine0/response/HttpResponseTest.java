@@ -2,6 +2,7 @@ package com.mtlevine0.response;
 
 import com.mtlevine0.FeatureFlag;
 import com.mtlevine0.FeatureFlagContext;
+import com.mtlevine0.request.HttpRequest;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -24,7 +25,7 @@ public class HttpResponseTest {
         rawHttpResponseBody = generateBody();
     }
 
-    private String generateRawHttpResponseHeaders(int contentLength, boolean gzip) {
+    private String generateRawHttpResponseHeaders(int contentLength, boolean isGzip) {
         String response = HttpResponse.HTTP_PROTOCOL_VERSION + " 200 Ok\r\n" +
                 "Date: Mon, 27 Jul 2009 12:28:53 GMT\r\n" +
                 "Server: Apache/2.2.14 (Win32)\r\n" +
@@ -32,7 +33,7 @@ public class HttpResponseTest {
                 "Content-Length: " + contentLength + "\r\n" +
                 "Content-Type: text/html\r\n" +
                 "Connection: Closed\r\n";
-        if (gzip) {
+        if (isGzip) {
             response = response + "Content-Encoding: gzip\r\n";
         }
         return response + "\r\n";
@@ -65,11 +66,22 @@ public class HttpResponseTest {
         return body;
     }
 
+    private HttpRequest generateHttpRequest(boolean isGzip) {
+        HttpRequest httpRequest = new HttpRequest();
+        if (isGzip) {
+            Map<String, String> headers = new LinkedHashMap<>();
+            headers.put("Accept-Encoding", "gzip, compress");
+            httpRequest.setHeaders(headers);
+        }
+        return httpRequest;
+    }
+
     @Test
     public void GivenHttpResponse_WhenParsingResponse_ThenResponseShouldMatchRawResponse() throws IOException {
         FeatureFlagContext.getInstance().disableFeature(FeatureFlag.GZIP_ENCODING);
         rawHttpResponseHeaders = generateRawHttpResponseHeaders(generateBody().length(), false);
-        assertArrayEquals((rawHttpResponseHeaders + rawHttpResponseBody).getBytes(), httpResponse.getResponse());
+        assertArrayEquals((rawHttpResponseHeaders + rawHttpResponseBody).getBytes(),
+                httpResponse.getResponse(generateHttpRequest(false)));
     }
 
     @Test
@@ -86,7 +98,8 @@ public class HttpResponseTest {
         byteArrayOutputStream1.write(rawHttpResponseHeaders.getBytes());
         byteArrayOutputStream1.write(byteArrayOutputStream.toByteArray());
 
-        assertArrayEquals(byteArrayOutputStream1.toByteArray(), httpResponse.getResponse());
+        assertArrayEquals(byteArrayOutputStream1.toByteArray(),
+                httpResponse.getResponse(generateHttpRequest(true)));
     }
 
 }

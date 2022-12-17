@@ -2,6 +2,7 @@ package com.mtlevine0.response;
 
 import com.mtlevine0.FeatureFlag;
 import com.mtlevine0.FeatureFlagContext;
+import com.mtlevine0.request.HttpRequest;
 import lombok.Builder;
 import lombok.Value;
 
@@ -35,9 +36,10 @@ public class HttpResponse {
         }
     }
 
-    public byte[] getResponse() throws IOException {
+    public byte[] getResponse(HttpRequest request) throws IOException {
+        Map<String, String> httpRequestHeaders = request.getHeaders();
         byte[] bodyBytes = gzipBody();
-        if (FeatureFlagContext.getInstance().isFeatureActive(FeatureFlag.GZIP_ENCODING)) {
+        if (isGzip(httpRequestHeaders)) {
             headers.put(CONTENT_ENCODING_HEADER, GZIP_ENCODING);
             headers.put(CONTENT_LENGTH_HEADER, String.valueOf(bodyBytes.length));
         } else {
@@ -48,13 +50,19 @@ public class HttpResponse {
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
         outputStream.write(responseHeader);
         if (Objects.nonNull(body)) {
-            if (FeatureFlagContext.getInstance().isFeatureActive(FeatureFlag.GZIP_ENCODING)) {
+            if (isGzip(httpRequestHeaders)) {
                 outputStream.write(gzipBody());
             } else {
                 outputStream.write(body);
             }
         }
         return outputStream.toByteArray();
+    }
+
+    private boolean isGzip(Map<String, String> httpRequestHeaders) {
+        return FeatureFlagContext.getInstance().isFeatureActive(FeatureFlag.GZIP_ENCODING) &&
+                httpRequestHeaders.containsKey("Accept-Encoding") &&
+                httpRequestHeaders.get("Accept-Encoding").contains("gzip");
     }
 
     private byte[] gzipBody() throws IOException {
