@@ -12,10 +12,12 @@ import java.io.*;
 import java.net.Socket;
 import java.nio.file.AccessDeniedException;
 import java.nio.file.NoSuchFileException;
+import java.util.Scanner;
 import java.util.logging.Logger;
 
 public class RequestDispatcher implements Runnable {
     private static final Logger LOGGER = Logger.getLogger(RequestDispatcher.class.getName());
+    private static final String HTTP_REQUEST_DELIMITER = "\r\n\r\n";
 
     private final Socket socket;
     private OutputStream out;
@@ -42,14 +44,23 @@ public class RequestDispatcher implements Runnable {
 
     @Override
     public void run() {
+        Scanner scanner = new Scanner(new InputStreamReader(in));
+        scanner.useDelimiter(HTTP_REQUEST_DELIMITER);
+        while(scanner.hasNext()) {
+            dispatch(new ByteArrayInputStream(scanner.next().getBytes()));
+        }
+        close();
+    }
+
+    private void dispatch(InputStream request) {
         HttpResponse httpResponse = null;
         try {
-            HttpRequest httpRequest = new HttpRequest(in);
-            LOGGER.info(httpRequest.toString());
+            HttpRequest httpRequest = new HttpRequest(request);
+            LOGGER.info(Thread.currentThread().getId() + " - " + httpRequest);
             httpResponse = requestRouter.route(httpRequest);
         } catch (MethodNotImplementedException e) {
             httpResponse = generateBasicHttpResponse(HttpStatus.NOT_IMPLEMENTED);
-        } catch(MethodNotAllowedException e) {
+        } catch (MethodNotAllowedException e) {
             httpResponse = generateBasicHttpResponse(HttpStatus.METHOD_NOT_ALLOWED);
         } catch (NoSuchFileException e) {
             httpResponse = generateBasicHttpResponse(HttpStatus.NOT_FOUND);
@@ -63,7 +74,6 @@ public class RequestDispatcher implements Runnable {
             httpResponse = generateBasicHttpResponse(HttpStatus.INTERNAL_SERVER_ERROR);
         } finally {
             handleResponse(httpResponse);
-            close();
         }
     }
 
