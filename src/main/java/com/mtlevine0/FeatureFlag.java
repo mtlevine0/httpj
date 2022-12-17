@@ -3,7 +3,8 @@ package com.mtlevine0;
 public enum FeatureFlag {
     DIRECTORY_LISTING(false),
     STATIC_FILE_SERVER(false),
-    SANITIZE_PATH(true);
+    SANITIZE_PATH(true),
+    GZIP_ENCODING(true);
 
     private final boolean defaultState;
 

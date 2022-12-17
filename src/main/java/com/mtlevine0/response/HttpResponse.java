@@ -1,5 +1,8 @@
 package com.mtlevine0.response;
 
+import com.mtlevine0.FeatureFlag;
+import com.mtlevine0.FeatureFlagContext;
+import com.mtlevine0.request.HttpRequest;
 import lombok.Builder;
 import lombok.Value;
 
@@ -8,13 +11,17 @@ import java.io.IOException;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Objects;
+import java.util.zip.GZIPOutputStream;
 
 @Value
 @Builder
 public class HttpResponse {
     public static final String HTTP_PROTOCOL_VERSION = "HTTP/1.1";
-    private static final String HTTP_NEW_LINE = "\r\n";
-    private static final String CONTENT_LENGHT_HEADER = "Content-Length";
+    public static final String HTTP_NEW_LINE = "\r\n";
+    public static final String CONTENT_LENGTH_HEADER = "Content-Length";
+    public static final String CONTENT_ENCODING_HEADER = "Content-Encoding";
+    public static final String ACCEPT_ENCODING_HEADER = "Accept-Encoding";
+    public static final String GZIP_ENCODING = "gzip";
     
     private HttpStatus status;
     private Map<String, String> headers;
@@ -22,40 +29,48 @@ public class HttpResponse {
 
     public HttpResponse(HttpStatus status, Map<String, String> headers, byte[] body) {
         this.status = status;
-        this.headers = headers;
         this.body = body;
-    }
-
-    public static HttpResponseBuilder builder() {
-        return new CustomHttpResponseBuilder();
-    }
-
-    private static class CustomHttpResponseBuilder extends HttpResponseBuilder {
-        @Override
-        public HttpResponse build() {
-            if (super.headers == null) {
-                super.headers = new LinkedHashMap<>();
-            }
-            int contentLength = 0;
-            if (Objects.nonNull(super.body)) {
-                contentLength = generateContentLength(super.body);
-            }
-            super.headers.put(CONTENT_LENGHT_HEADER, String.valueOf(contentLength));
-            return super.build();
+        if (Objects.isNull(headers)) {
+            this.headers = new LinkedHashMap<>();
+        } else {
+            this.headers = headers;
         }
     }
 
-    private static int generateContentLength(byte[] body) {
-        return body.length;
-    }
+    public byte[] getResponse(HttpRequest request) throws IOException {
+        Map<String, String> httpRequestHeaders = request.getHeaders();
+        byte[] bodyBytes = gzipBody();
+        if (isGzip(httpRequestHeaders)) {
+            headers.put(CONTENT_ENCODING_HEADER, GZIP_ENCODING);
+            headers.put(CONTENT_LENGTH_HEADER, String.valueOf(bodyBytes.length));
+        } else {
+            headers.put(CONTENT_LENGTH_HEADER, String.valueOf(body.length));
+        }
 
-    public byte[] getResponse() throws IOException {
         byte[] responseHeader = this.generateResponseHeader().getBytes();
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
         outputStream.write(responseHeader);
         if (Objects.nonNull(body)) {
-            outputStream.write(body);
+            if (isGzip(httpRequestHeaders)) {
+                outputStream.write(gzipBody());
+            } else {
+                outputStream.write(body);
+            }
         }
+        return outputStream.toByteArray();
+    }
+
+    private boolean isGzip(Map<String, String> httpRequestHeaders) {
+        return FeatureFlagContext.getInstance().isFeatureActive(FeatureFlag.GZIP_ENCODING) &&
+                httpRequestHeaders.containsKey(ACCEPT_ENCODING_HEADER) &&
+                httpRequestHeaders.get(ACCEPT_ENCODING_HEADER).contains(GZIP_ENCODING);
+    }
+
+    private byte[] gzipBody() throws IOException {
+        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+        GZIPOutputStream gzipOutputStream = new GZIPOutputStream(outputStream);
+        gzipOutputStream.write(body);
+        gzipOutputStream.close();
         return outputStream.toByteArray();
     }
 

@@ -54,8 +54,9 @@ public class RequestDispatcher implements Runnable {
 
     private void dispatch(InputStream request) {
         HttpResponse httpResponse = null;
+        HttpRequest httpRequest = null;
         try {
-            HttpRequest httpRequest = new HttpRequest(request);
+            httpRequest = new HttpRequest(request);
             LOGGER.info(Thread.currentThread().getId() + " - " + httpRequest);
             httpResponse = requestRouter.route(httpRequest);
         } catch (MethodNotImplementedException e) {
@@ -73,7 +74,7 @@ public class RequestDispatcher implements Runnable {
             e.printStackTrace();
             httpResponse = generateBasicHttpResponse(HttpStatus.INTERNAL_SERVER_ERROR);
         } finally {
-            handleResponse(httpResponse);
+            handleResponse(httpResponse, httpRequest);
         }
     }
 
@@ -84,9 +85,9 @@ public class RequestDispatcher implements Runnable {
         return httpResponse;
     }
 
-    private void handleResponse(HttpResponse httpResponse) {
+    private void handleResponse(HttpResponse httpResponse, HttpRequest httpRequest) {
         try {
-            out.write(httpResponse.getResponse());
+            out.write(httpResponse.getResponse(httpRequest));
         } catch (IOException e) {
             e.printStackTrace();
         }
