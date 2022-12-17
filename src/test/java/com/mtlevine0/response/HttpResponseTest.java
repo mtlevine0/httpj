@@ -1,5 +1,7 @@
 package com.mtlevine0.response;
 
+import com.mtlevine0.FeatureFlag;
+import com.mtlevine0.FeatureFlagContext;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -60,6 +62,7 @@ public class HttpResponseTest {
 
     @Test
     public void GivenHttpResponse_WhenParsingResponse_ThenResponseShouldMatchRawResponse() throws IOException {
+        FeatureFlagContext.getInstance().disableFeature(FeatureFlag.GZIP_ENCODING);
         assertArrayEquals(rawHttpResponse.getBytes(), httpResponse.getResponse());
     }
 
