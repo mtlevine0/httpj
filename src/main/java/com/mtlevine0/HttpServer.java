@@ -44,10 +44,9 @@ public class HttpServer {
 
         RequestRouter requestRouter = new RequestRouter(basePath);
         requestRouter.registerRoute("/info", HttpMethod.GET, new InfoHandler());
-//        requestRouter.registerRoute("/info", HttpMethod.GET, new CustomHandler());
 
         serverSocket = new ServerSocket(port);
-        while (true) {
+        while (serverSocket.isBound()) {
             executor.execute(new RequestDispatcher(serverSocket.accept(), requestRouter));
         }
     }
