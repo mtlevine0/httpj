@@ -70,7 +70,7 @@ public class HttpResponseTest {
         HttpRequest httpRequest = new HttpRequest();
         if (isGzip) {
             Map<String, String> headers = new LinkedHashMap<>();
-            headers.put("Accept-Encoding", "gzip, compress");
+            headers.put(HttpResponse.ACCEPT_ENCODING_HEADER, "gzip, compress");
             httpRequest.setHeaders(headers);
         }
         return httpRequest;

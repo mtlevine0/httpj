@@ -17,10 +17,11 @@ import java.util.zip.GZIPOutputStream;
 @Builder
 public class HttpResponse {
     public static final String HTTP_PROTOCOL_VERSION = "HTTP/1.1";
-    private static final String HTTP_NEW_LINE = "\r\n";
-    private static final String CONTENT_LENGTH_HEADER = "Content-Length";
-    private static final String CONTENT_ENCODING_HEADER = "Content-Encoding";
-    private static final String GZIP_ENCODING = "gzip";
+    public static final String HTTP_NEW_LINE = "\r\n";
+    public static final String CONTENT_LENGTH_HEADER = "Content-Length";
+    public static final String CONTENT_ENCODING_HEADER = "Content-Encoding";
+    public static final String ACCEPT_ENCODING_HEADER = "Accept-Encoding";
+    public static final String GZIP_ENCODING = "gzip";
     
     private HttpStatus status;
     private Map<String, String> headers;
@@ -61,8 +62,8 @@ public class HttpResponse {
 
     private boolean isGzip(Map<String, String> httpRequestHeaders) {
         return FeatureFlagContext.getInstance().isFeatureActive(FeatureFlag.GZIP_ENCODING) &&
-                httpRequestHeaders.containsKey("Accept-Encoding") &&
-                httpRequestHeaders.get("Accept-Encoding").contains("gzip");
+                httpRequestHeaders.containsKey(ACCEPT_ENCODING_HEADER) &&
+                httpRequestHeaders.get(ACCEPT_ENCODING_HEADER).contains(GZIP_ENCODING);
     }
 
     private byte[] gzipBody() throws IOException {
