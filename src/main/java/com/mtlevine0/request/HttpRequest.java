@@ -41,7 +41,7 @@ public class HttpRequest {
     }
 
     private void parseRequest() {
-        String[] requestLines = request.split(HTTP_NEW_LINE;
+        String[] requestLines = request.split(HTTP_NEW_LINE);
         method = parseMethod(requestLines);
         path = parsePath(requestLines);
         protocolVersion = parseProtocolVersion(requestLines);
