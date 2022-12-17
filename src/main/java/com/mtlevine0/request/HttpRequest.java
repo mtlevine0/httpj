@@ -10,6 +10,8 @@ import java.util.List;
 import java.util.Map;
 
 public class HttpRequest {
+    private static final String HTTP_NEW_LINE = "\r\n";
+
     private String request;
     private HttpMethod method;
     private String path;
@@ -39,7 +41,7 @@ public class HttpRequest {
     }
 
     private void parseRequest() {
-        String[] requestLines = request.split("\r\n");
+        String[] requestLines = request.split(HTTP_NEW_LINE;
         method = parseMethod(requestLines);
         path = parsePath(requestLines);
         protocolVersion = parseProtocolVersion(requestLines);
@@ -197,13 +199,13 @@ public class HttpRequest {
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();
-        sb.append(method.toString() + " " + path + " " + protocolVersion + "\r\n");
+        sb.append(method.toString() + " " + path + " " + protocolVersion + HTTP_NEW_LINE);
         for (String headerKey : headers.keySet()) {
-            sb.append(headerKey + ": " + headers.get(headerKey) + "\r\n");
+            sb.append(headerKey + ": " + headers.get(headerKey) + HTTP_NEW_LINE);
         }
-        sb.append("\r\n");
+        sb.append(HTTP_NEW_LINE);
         sb.append(body);
-        sb.append("\r\n\r\n");
+        sb.append(HTTP_NEW_LINE + HTTP_NEW_LINE);
         return sb.toString();
     }
 }
