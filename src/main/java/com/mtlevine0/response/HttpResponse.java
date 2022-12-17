@@ -12,7 +12,7 @@ import java.util.Objects;
 @Value
 @Builder
 public class HttpResponse {
-    private static final String HTTP_PROTOCOL_VERSION = "HTTP/1.1";
+    public static final String HTTP_PROTOCOL_VERSION = "HTTP/1.1";
     private static final String HTTP_NEW_LINE = "\r\n";
     private static final String CONTENT_LENGHT_HEADER = "Content-Length";
     
