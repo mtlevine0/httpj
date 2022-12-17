@@ -12,7 +12,10 @@ import java.util.Objects;
 @Value
 @Builder
 public class HttpResponse {
-    private String protocolVersion = "HTTP/1.0";
+    private static final String HTTP_PROTOCOL_VERSION = "HTTP/1.1";
+    private static final String HTTP_NEW_LINE = "\r\n";
+    private static final String CONTENT_LENGHT_HEADER = "Content-Length";
+    
     private HttpStatus status;
     private Map<String, String> headers;
     private byte[] body;
@@ -37,7 +40,7 @@ public class HttpResponse {
             if (Objects.nonNull(super.body)) {
                 contentLength = generateContentLength(super.body);
             }
-            super.headers.put("Content-Length", String.valueOf(contentLength));
+            super.headers.put(CONTENT_LENGHT_HEADER, String.valueOf(contentLength));
             return super.build();
         }
     }
@@ -58,11 +61,11 @@ public class HttpResponse {
 
     private String generateResponseHeader() {
         StringBuilder response = new StringBuilder();
-        response.append(protocolVersion + " " + status.getValue() + " " + status.getReason() + "\r\n");
+        response.append(HTTP_PROTOCOL_VERSION + " " + status.getValue() + " " + status.getReason() + HTTP_NEW_LINE);
         for (String key : headers.keySet()) {
-            response.append(key + ": " + headers.get(key) + "\r\n");
+            response.append(key + ": " + headers.get(key) + HTTP_NEW_LINE);
         }
-        response.append("\r\n");
+        response.append(HTTP_NEW_LINE);
         return response.toString();
     }
 }
