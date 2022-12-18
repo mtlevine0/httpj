@@ -5,7 +5,6 @@ import com.mtlevine0.exception.MethodNotAllowedException;
 import com.mtlevine0.exception.MethodNotImplementedException;
 import com.mtlevine0.handler.RequestRouter;
 import com.mtlevine0.middleware.MiddlewareService;
-import com.mtlevine0.request.HttpMethod;
 import com.mtlevine0.request.HttpRequest;
 import com.mtlevine0.response.HttpResponse;
 import com.mtlevine0.response.HttpStatus;
@@ -75,7 +74,7 @@ public class RequestDispatcher implements Runnable {
             e.printStackTrace();
             httpResponse = generateBasicHttpResponse(HttpStatus.INTERNAL_SERVER_ERROR);
         } finally {
-            handleResponse(httpResponse, httpRequest);
+            handleResponse(httpResponse);
         }
     }
 
@@ -86,9 +85,9 @@ public class RequestDispatcher implements Runnable {
         return httpResponse;
     }
 
-    private void handleResponse(HttpResponse httpResponse, HttpRequest httpRequest) {
+    private void handleResponse(HttpResponse httpResponse) {
         try {
-            out.write(httpResponse.getResponse(httpRequest));
+            out.write(httpResponse.getResponse());
         } catch (IOException e) {
             e.printStackTrace();
         }

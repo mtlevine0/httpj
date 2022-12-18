@@ -1,8 +1,5 @@
 package com.mtlevine0.response;
 
-import com.mtlevine0.FeatureFlag;
-import com.mtlevine0.FeatureFlagContext;
-import com.mtlevine0.request.HttpRequest;
 import lombok.Builder;
 import lombok.Data;
 
@@ -11,7 +8,6 @@ import java.io.IOException;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Objects;
-import java.util.zip.GZIPOutputStream;
 
 @Data
 @Builder
@@ -37,42 +33,12 @@ public class HttpResponse {
         }
     }
 
-    public byte[] getResponse(HttpRequest request) throws IOException {
-        Map<String, String> httpRequestHeaders = request.getHeaders();
-        if (Objects.nonNull(body)) {
-            if (isGzip(httpRequestHeaders)) {
-                byte[] bodyBytes = gzipBody();
-                headers.put(CONTENT_ENCODING_HEADER, GZIP_ENCODING);
-                headers.put(CONTENT_LENGTH_HEADER, String.valueOf(bodyBytes.length));
-            } else {
-                headers.put(CONTENT_LENGTH_HEADER, String.valueOf(body.length));
-            }
-        }
-
+    public byte[] getResponse() throws IOException {
+        headers.put(CONTENT_LENGTH_HEADER, String.valueOf(body.length));
         byte[] responseHeader = this.generateResponseHeader().getBytes();
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
         outputStream.write(responseHeader);
-        if (Objects.nonNull(body)) {
-            if (isGzip(httpRequestHeaders)) {
-                outputStream.write(gzipBody());
-            } else {
-                outputStream.write(body);
-            }
-        }
-        return outputStream.toByteArray();
-    }
-
-    private boolean isGzip(Map<String, String> httpRequestHeaders) {
-        return FeatureFlagContext.getInstance().isFeatureActive(FeatureFlag.GZIP_ENCODING) &&
-                httpRequestHeaders.containsKey(ACCEPT_ENCODING_HEADER) &&
-                httpRequestHeaders.get(ACCEPT_ENCODING_HEADER).contains(GZIP_ENCODING);
-    }
-
-    private byte[] gzipBody() throws IOException {
-        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-        GZIPOutputStream gzipOutputStream = new GZIPOutputStream(outputStream);
-        gzipOutputStream.write(body);
-        gzipOutputStream.close();
+        outputStream.write(body);
         return outputStream.toByteArray();
     }
 

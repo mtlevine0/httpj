@@ -1,5 +1,7 @@
 package com.mtlevine0.middleware;
 
+import com.mtlevine0.FeatureFlag;
+import com.mtlevine0.FeatureFlagContext;
 import com.mtlevine0.handler.CustomRequestHandler;
 import com.mtlevine0.handler.RequestRouter;
 import com.mtlevine0.request.HttpRequest;
@@ -21,6 +23,9 @@ public class MiddlewareService {
 
         registerPreRouter(new LoggingMiddleware());
         registerPostRouter(new HelloMiddleware());
+        if(FeatureFlagContext.getInstance().isFeatureActive(FeatureFlag.GZIP_ENCODING)) {
+            registerPostRouter(new GzipMiddleware());
+        }
     }
 
     public void registerPreRouter(Middleware middleware) {
