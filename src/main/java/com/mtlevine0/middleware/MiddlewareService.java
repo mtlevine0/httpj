@@ -8,24 +8,26 @@ import java.util.List;
 
 public class MiddlewareService {
 
-    private List<Middleware> middleware;
+    private List<Middleware> middlewares;
 
     public MiddlewareService() {
-        middleware = new ArrayList<>();
+        middlewares = new ArrayList<>();
+        middlewares.add(new LoggingMiddleware());
+        middlewares.add(new HelloMiddleware());
     }
 
     public void register(Middleware middleware) {
-        this.middleware.add(middleware);
+        this.middlewares.add(middleware);
     }
 
     public void execute(HttpRequest request, HttpResponse response) {
-        if (middleware.size() > 0) {
-            middleware.get(0).handle(request, response, middleware.get(1));
+        for(Middleware middleware: middlewares) {
+            middleware.handle(request, response);
         }
     }
 
-    public List<Middleware> getMiddleware() {
-        return this.middleware;
+    public List<Middleware> getMiddlewares() {
+        return this.middlewares;
     }
 
 }

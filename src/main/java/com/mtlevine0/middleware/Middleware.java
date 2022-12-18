@@ -5,6 +5,6 @@ import com.mtlevine0.response.HttpResponse;
 
 public interface Middleware {
 
-    public void handle(HttpRequest request, HttpResponse response, Middleware next);
+    public void handle(HttpRequest request, HttpResponse response);
 
 }

@@ -4,6 +4,7 @@ import com.mtlevine0.exception.HttpRequestParsingException;
 import com.mtlevine0.exception.MethodNotAllowedException;
 import com.mtlevine0.exception.MethodNotImplementedException;
 import com.mtlevine0.handler.RequestRouter;
+import com.mtlevine0.middleware.MiddlewareService;
 import com.mtlevine0.request.HttpRequest;
 import com.mtlevine0.response.HttpResponse;
 import com.mtlevine0.response.HttpStatus;
@@ -23,8 +24,10 @@ public class RequestDispatcher implements Runnable {
     private OutputStream out;
     private InputStream in;
     private RequestRouter requestRouter;
+    private MiddlewareService middlewareService;
 
     private RequestDispatcher(Socket socket) {
+        this.middlewareService = new MiddlewareService();
         this.socket = socket;
         try {
             out = socket.getOutputStream();
@@ -57,8 +60,8 @@ public class RequestDispatcher implements Runnable {
         HttpRequest httpRequest = null;
         try {
             httpRequest = new HttpRequest(request);
-            LOGGER.info(Thread.currentThread().getId() + " - " + httpRequest);
             httpResponse = requestRouter.route(httpRequest);
+            middlewareService.execute(httpRequest, httpResponse);
         } catch (MethodNotImplementedException e) {
             httpResponse = generateBasicHttpResponse(HttpStatus.NOT_IMPLEMENTED);
         } catch (MethodNotAllowedException e) {
