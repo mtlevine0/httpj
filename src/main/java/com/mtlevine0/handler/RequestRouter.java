@@ -23,33 +23,48 @@ public class RequestRouter {
         }
     }
 
-    public HttpResponse route(HttpRequest httpRequest) throws IOException, MethodNotAllowedException {
-        HttpResponse response = handleRoute(httpRequest);
-        if (isWildCardPath(httpRequest, response) && Objects.isNull(response)) {
-            response = handlers.get(new Route("*", httpRequest.getMethod())).handleRequest(httpRequest);
+    public HttpResponse route(HttpRequest httpRequest, HttpResponse httpResponse) throws IOException, MethodNotAllowedException {
+        if (matchesRoute(httpRequest)) {
+            handleRoute(httpRequest, httpResponse);
+        } else {
+            if (isWildCardPath(httpRequest)) {
+                handleWildCardRoute(httpRequest, httpResponse);
+            } else {
+                handleRouteNotMatched(httpRequest);
+            }
         }
-        handleRouteNotMatched(httpRequest, response);
-        return response;
+        return httpResponse;
     }
 
-    private HttpResponse handleRoute(HttpRequest httpRequest) throws IOException {
-        HttpResponse response = null;
+    private void handleWildCardRoute(HttpRequest httpRequest, HttpResponse httpResponse) throws IOException {
+        handlers.get(new Route("*", httpRequest.getMethod())).handleRequest(httpRequest, httpResponse);
+    }
+
+    private boolean isCustomHandlerRegistered(HttpRequest httpRequest) {
+        return handlers.containsKey(new Route(httpRequest.getPath(), httpRequest.getMethod())) &&
+                handlers.get(new Route(httpRequest.getPath(), httpRequest.getMethod())) instanceof CustomRequestHandler;
+    }
+
+    private void handleRoute(HttpRequest httpRequest, HttpResponse httpResponse) throws IOException {
+        if (matchesRoute(httpRequest)) {
+            Route route = new Route(httpRequest.getPath(), httpRequest.getMethod());
+            handlers.get(route).handleRequest(httpRequest, httpResponse);
+        }
+    }
+
+    public boolean matchesRoute(HttpRequest httpRequest) {
         Route route = new Route(httpRequest.getPath(), httpRequest.getMethod());
-        if (handlers.containsKey(route)) {
-            response = handlers.get(route).handleRequest(httpRequest);
-        }
-        return response;
+        return handlers.containsKey(route);
     }
 
-    private boolean isWildCardPath(HttpRequest request, HttpResponse response) {
+    private boolean isWildCardPath(HttpRequest request) {
         return handlers.containsKey(new Route("*", request.getMethod())) ;
     }
 
-    private void handleRouteNotMatched(HttpRequest httpRequest, HttpResponse response) {
-        if (Objects.isNull(response)) {
-            throw new MethodNotAllowedException(httpRequest.getMethod() + " - " +
-                    httpRequest.getPath() + ": Not Implemented.");
-        }
+    private void handleRouteNotMatched(HttpRequest httpRequest) {
+        throw new MethodNotAllowedException(httpRequest.getMethod() + " - " +
+                httpRequest.getPath() + ": Not Implemented.");
+
     }
 
     private List<Route> findRoutesByPath(String path) {
@@ -132,8 +147,9 @@ public class RequestRouter {
         }
 
         @Override
-        public HttpResponse handleRequest(HttpRequest httpRequest) {
-            return HttpResponse.builder().body(requestRouter.toString().getBytes()).status(HttpStatus.OK).build();
+        public void handleRequest(HttpRequest httpRequest, HttpResponse response) {
+            response.setBody(requestRouter.toString().getBytes());
+            response.setStatus(HttpStatus.OK);
         }
     }
 }

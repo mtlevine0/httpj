@@ -2,6 +2,7 @@ package com.mtlevine0;
 
 import com.mtlevine0.handler.CustomRequestHandler;
 import com.mtlevine0.handler.RequestRouter;
+import com.mtlevine0.middleware.MiddlewareService;
 import com.mtlevine0.request.HttpMethod;
 import com.mtlevine0.request.HttpRequest;
 import com.mtlevine0.response.HttpResponse;
@@ -44,7 +45,8 @@ public class HttpServer {
 
         RequestRouter requestRouter = new RequestRouter(basePath);
         requestRouter.registerRoute("/info", HttpMethod.GET, new InfoHandler());
-
+        requestRouter.registerRoute("/middleware", HttpMethod.GET,
+                new MiddlewareService.MiddlewareServiceHandler());
         serverSocket = new ServerSocket(port);
         while (serverSocket.isBound()) {
             executor.execute(new RequestDispatcher(serverSocket.accept(), requestRouter));
@@ -57,14 +59,15 @@ public class HttpServer {
 
     public class CustomHandler implements CustomRequestHandler {
         @Override
-        public HttpResponse handleRequest(HttpRequest httpRequest) {
-            return HttpResponse.builder().status(HttpStatus.OK).body("Custom!".getBytes()).build();
+        public void handleRequest(HttpRequest httpRequest, HttpResponse httpResponse) {
+            httpResponse.setBody("Custom!".getBytes());
+            httpResponse.setStatus(HttpStatus.OK);
         }
     }
 
     public class InfoHandler implements CustomRequestHandler {
         @Override
-        public HttpResponse handleRequest(HttpRequest httpRequest) {
+        public void handleRequest(HttpRequest httpRequest, HttpResponse httpResponse) {
             StringBuilder sb = new StringBuilder();
             sb.append(Instant.now().toString() + "\n");
             sb.append("Custom Request Handler!" + "\n\n");
@@ -76,7 +79,8 @@ public class HttpServer {
             for (String key : httpRequest.getQueryParams().keySet()) {
                 sb.append(key + ": " + httpRequest.getQueryParams().get(key) + "\n");
             }
-            return HttpResponse.builder().status(HttpStatus.OK).body(sb.toString().getBytes()).build();
+            httpResponse.setBody(sb.toString().getBytes());
+            httpResponse.setStatus(HttpStatus.OK);
         }
     }
 

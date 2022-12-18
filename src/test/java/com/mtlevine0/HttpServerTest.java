@@ -57,15 +57,17 @@ public class HttpServerTest {
 
     public class CustomHttpRequestHandler implements RequestHandler {
         @Override
-        public HttpResponse handleRequest(HttpRequest httpRequest) {
-            return HttpResponse.builder().status(HttpStatus.NOT_FOUND).body("NOT HERE!".getBytes()).build();
+        public void handleRequest(HttpRequest httpRequest, HttpResponse httpResponse) {
+            httpResponse.setBody("NOT HERE!".getBytes());
+            httpResponse.setStatus(HttpStatus.NOT_FOUND);
         }
     }
 
     public class MattHandler implements RequestHandler {
         @Override
-        public HttpResponse handleRequest(HttpRequest httpRequest) {
-            return HttpResponse.builder().status(HttpStatus.OK).body("Cool Beans...".getBytes()).build();
+        public void handleRequest(HttpRequest httpRequest, HttpResponse httpResponse) {
+            httpResponse.setBody("Cool Beans...".getBytes());
+            httpResponse.setStatus(HttpStatus.OK);
         }
     }
 

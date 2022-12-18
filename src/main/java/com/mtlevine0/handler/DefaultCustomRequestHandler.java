@@ -6,7 +6,7 @@ import com.mtlevine0.response.HttpStatus;
 
 public class DefaultCustomRequestHandler implements RequestHandler{
     @Override
-    public HttpResponse handleRequest(HttpRequest httpRequest) {
-        return HttpResponse.builder().status(HttpStatus.OK).build();
+    public void handleRequest(HttpRequest httpRequest, HttpResponse httpResponse) {
+        httpResponse.setStatus(HttpStatus.OK);
     }
 }

@@ -22,15 +22,17 @@ public class RequestRouterTest {
 
     protected class CustomHandler implements CustomRequestHandler {
         @Override
-        public HttpResponse handleRequest(HttpRequest httpRequest) {
-            return HttpResponse.builder().body("Custom Body!".getBytes()).status(HttpStatus.OK).build();
+        public void handleRequest(HttpRequest httpRequest, HttpResponse httpResponse) {
+            httpResponse.setBody("Custom Body!".getBytes());
+            httpResponse.setStatus(HttpStatus.OK);
         }
     }
 
     protected class DefaultRequestHandler implements RequestHandler {
         @Override
-        public HttpResponse handleRequest(HttpRequest httpRequest) {
-            return HttpResponse.builder().body("Default Body!".getBytes()).status(HttpStatus.OK).build();
+        public void handleRequest(HttpRequest httpRequest, HttpResponse httpResponse) {
+            httpResponse.setBody("Default Body!".getBytes());
+            httpResponse.setStatus(HttpStatus.OK);
         }
     }
 

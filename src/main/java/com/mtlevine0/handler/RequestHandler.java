@@ -7,6 +7,6 @@ import java.io.IOException;
 
 public interface RequestHandler {
 
-    HttpResponse handleRequest(HttpRequest httpRequest) throws IOException;
+    public void handleRequest(HttpRequest httpRequest, HttpResponse response) throws IOException;
 
 }
