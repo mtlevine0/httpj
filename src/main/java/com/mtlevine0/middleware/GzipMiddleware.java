@@ -1,7 +1,5 @@
 package com.mtlevine0.middleware;
 
-import com.mtlevine0.FeatureFlag;
-import com.mtlevine0.FeatureFlagContext;
 import com.mtlevine0.request.HttpRequest;
 import com.mtlevine0.response.HttpResponse;
 
@@ -13,6 +11,7 @@ import java.util.zip.GZIPOutputStream;
 
 public class GzipMiddleware implements Middleware {
     private static final String ACCEPT_ENCODING_HEADER = "Accept-Encoding";
+    private static final String CONTENT_ENCODING_HEADER = "Content-Encoding";
     private static final String GZIP_ENCODING = "gzip";
 
     @Override
@@ -27,7 +26,7 @@ public class GzipMiddleware implements Middleware {
             body = outputStream.toByteArray();
             response.setBody(body);
 
-            response.getHeaders().put("Content-Encoding", "gzip");
+            response.getHeaders().put(CONTENT_ENCODING_HEADER, GZIP_ENCODING);
         }
     }
 

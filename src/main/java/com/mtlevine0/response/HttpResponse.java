@@ -15,10 +15,7 @@ public class HttpResponse {
     public static final String HTTP_PROTOCOL_VERSION = "HTTP/1.1";
     public static final String HTTP_NEW_LINE = "\r\n";
     public static final String CONTENT_LENGTH_HEADER = "Content-Length";
-    public static final String CONTENT_ENCODING_HEADER = "Content-Encoding";
-    public static final String ACCEPT_ENCODING_HEADER = "Accept-Encoding";
-    public static final String GZIP_ENCODING = "gzip";
-    
+
     private HttpStatus status;
     private Map<String, String> headers;
     private byte[] body;
