@@ -4,7 +4,7 @@ import com.mtlevine0.FeatureFlag;
 import com.mtlevine0.FeatureFlagContext;
 import com.mtlevine0.request.HttpRequest;
 import lombok.Builder;
-import lombok.Value;
+import lombok.Data;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -13,7 +13,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.zip.GZIPOutputStream;
 
-@Value
+@Data
 @Builder
 public class HttpResponse {
     public static final String HTTP_PROTOCOL_VERSION = "HTTP/1.1";

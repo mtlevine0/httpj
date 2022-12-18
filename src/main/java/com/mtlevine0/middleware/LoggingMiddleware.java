@@ -13,6 +13,7 @@ public class LoggingMiddleware implements Middleware {
     public void handle(HttpRequest request, HttpResponse response) {
         Map<String, String> headers = request.getHeaders();
         StringBuilder sb = new StringBuilder();
+        sb.append(request.getMethod() + " - " + request.getPath() + "\n");
         for(String headerKey: headers.keySet()) {
             sb.append(headerKey + ": " +  headers.get(headerKey) + "\n");
         }

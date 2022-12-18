@@ -20,7 +20,7 @@ public class StaticResourceRequestHandler implements RequestHandler {
     }
 
     @Override
-    public HttpResponse handleRequest(HttpRequest request) throws IOException {
+    public void handleRequest(HttpRequest request, HttpResponse response) throws IOException {
         byte[] body;
         if (ResourceUtil.isDirectory(basePath, request.getPath())) {
             if (FeatureFlagContext.getInstance().isFeatureActive(FeatureFlag.DIRECTORY_LISTING)) {
@@ -31,7 +31,8 @@ public class StaticResourceRequestHandler implements RequestHandler {
         } else {
             body = ResourceUtil.loadResource(basePath, request.getPath());
         }
-        return HttpResponse.builder().status(HttpStatus.OK).body(body).build();
+        response.setBody(body);
+        response.setStatus(HttpStatus.OK);
     }
 
 }

@@ -10,6 +10,9 @@ public class HelloMiddleware implements Middleware {
 
     @Override
     public void handle(HttpRequest request, HttpResponse response) {
-        LOGGER.info("Hello!!!");
+        if (request.getQueryParams().containsKey("name")) {
+            String name = request.getQueryParams().get("name");
+            LOGGER.info("Hello " + name + "!\n");
+        }
     }
 }

@@ -5,6 +5,7 @@ import com.mtlevine0.exception.MethodNotAllowedException;
 import com.mtlevine0.exception.MethodNotImplementedException;
 import com.mtlevine0.handler.RequestRouter;
 import com.mtlevine0.middleware.MiddlewareService;
+import com.mtlevine0.request.HttpMethod;
 import com.mtlevine0.request.HttpRequest;
 import com.mtlevine0.response.HttpResponse;
 import com.mtlevine0.response.HttpStatus;
@@ -14,10 +15,8 @@ import java.net.Socket;
 import java.nio.file.AccessDeniedException;
 import java.nio.file.NoSuchFileException;
 import java.util.Scanner;
-import java.util.logging.Logger;
 
 public class RequestDispatcher implements Runnable {
-    private static final Logger LOGGER = Logger.getLogger(RequestDispatcher.class.getName());
     private static final String HTTP_REQUEST_DELIMITER = "\r\n\r\n";
 
     private final Socket socket;
@@ -27,7 +26,6 @@ public class RequestDispatcher implements Runnable {
     private MiddlewareService middlewareService;
 
     private RequestDispatcher(Socket socket) {
-        this.middlewareService = new MiddlewareService();
         this.socket = socket;
         try {
             out = socket.getOutputStream();
@@ -43,6 +41,7 @@ public class RequestDispatcher implements Runnable {
     public RequestDispatcher(Socket socket, RequestRouter requestRouter) {
         this(socket, new String());
         this.requestRouter = requestRouter;
+        this.middlewareService = new MiddlewareService(requestRouter);
     }
 
     @Override
@@ -56,11 +55,10 @@ public class RequestDispatcher implements Runnable {
     }
 
     private void dispatch(InputStream request) {
-        HttpResponse httpResponse = null;
+        HttpResponse httpResponse = HttpResponse.builder().build();
         HttpRequest httpRequest = null;
         try {
             httpRequest = new HttpRequest(request);
-            httpResponse = requestRouter.route(httpRequest);
             middlewareService.execute(httpRequest, httpResponse);
         } catch (MethodNotImplementedException e) {
             httpResponse = generateBasicHttpResponse(HttpStatus.NOT_IMPLEMENTED);
