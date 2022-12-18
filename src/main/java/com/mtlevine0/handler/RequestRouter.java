@@ -17,7 +17,7 @@ public class RequestRouter {
     public RequestRouter(String basePath) {
         handlers = new LinkedHashMap<>();
         registerRoute("/routes", HttpMethod.GET, new RouteInfoHandler(this));
-        registerRoute("*", HttpMethod.HEAD, new DefaultRequestHandler(basePath));
+        registerRoute("*", HttpMethod.HEAD, new DefaultCustomRequestHandler());
         if (FeatureFlagContext.getInstance().isFeatureActive(FeatureFlag.STATIC_FILE_SERVER)) {
             registerRoute("*", HttpMethod.GET, new StaticResourceRequestHandler(basePath));
         }

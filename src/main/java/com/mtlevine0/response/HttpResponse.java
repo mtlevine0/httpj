@@ -39,12 +39,14 @@ public class HttpResponse {
 
     public byte[] getResponse(HttpRequest request) throws IOException {
         Map<String, String> httpRequestHeaders = request.getHeaders();
-        byte[] bodyBytes = gzipBody();
-        if (isGzip(httpRequestHeaders)) {
-            headers.put(CONTENT_ENCODING_HEADER, GZIP_ENCODING);
-            headers.put(CONTENT_LENGTH_HEADER, String.valueOf(bodyBytes.length));
-        } else {
-            headers.put(CONTENT_LENGTH_HEADER, String.valueOf(body.length));
+        if (Objects.nonNull(body)) {
+            if (isGzip(httpRequestHeaders)) {
+                byte[] bodyBytes = gzipBody();
+                headers.put(CONTENT_ENCODING_HEADER, GZIP_ENCODING);
+                headers.put(CONTENT_LENGTH_HEADER, String.valueOf(bodyBytes.length));
+            } else {
+                headers.put(CONTENT_LENGTH_HEADER, String.valueOf(body.length));
+            }
         }
 
         byte[] responseHeader = this.generateResponseHeader().getBytes();
