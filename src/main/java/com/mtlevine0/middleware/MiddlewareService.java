@@ -20,9 +20,9 @@ public class MiddlewareService {
     public MiddlewareService(RequestRouter router) {
         middlewares = new ArrayList<>();
         middlewares.add(new RouterMiddleware(router));
-
-        registerPreRouter(new LoggingMiddleware());
-        registerPostRouter(new HelloMiddleware());
+        if(FeatureFlagContext.getInstance().isFeatureActive(FeatureFlag.REQUEST_LOGGING)) {
+            registerPreRouter(new LoggingMiddleware());
+        }
         if(FeatureFlagContext.getInstance().isFeatureActive(FeatureFlag.GZIP_ENCODING)) {
             registerPostRouter(new GzipMiddleware());
         }

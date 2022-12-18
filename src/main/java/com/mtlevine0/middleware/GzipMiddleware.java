@@ -31,7 +31,7 @@ public class GzipMiddleware implements Middleware {
     }
 
     private boolean isGzip(Map<String, String> httpRequestHeaders) {
-        return httpRequestHeaders.containsKey(ACCEPT_ENCODING_HEADER) &&
+        return Objects.nonNull(httpRequestHeaders) && httpRequestHeaders.containsKey(ACCEPT_ENCODING_HEADER) &&
                 httpRequestHeaders.get(ACCEPT_ENCODING_HEADER).contains(GZIP_ENCODING);
     }
 }
