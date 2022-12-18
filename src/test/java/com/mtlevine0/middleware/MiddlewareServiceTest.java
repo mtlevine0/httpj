@@ -20,6 +20,7 @@ public class MiddlewareServiceTest {
 
     @Before
     public void init() {
+        FeatureFlagContext.getInstance().disableFeature(FeatureFlag.STATIC_FILE_SERVER);
         requestRouter = new RequestRouter(BASE_PATH);
         middlewareService = new MiddlewareService(requestRouter);
     }
