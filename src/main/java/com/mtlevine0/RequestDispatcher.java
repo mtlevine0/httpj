@@ -21,7 +21,6 @@ public class RequestDispatcher implements Runnable {
     private final Socket socket;
     private OutputStream out;
     private InputStream in;
-    private RequestRouter requestRouter;
     private MiddlewareService middlewareService;
 
     private RequestDispatcher(Socket socket) {
@@ -32,14 +31,8 @@ public class RequestDispatcher implements Runnable {
         } catch (IOException e) { }
     }
 
-    public RequestDispatcher(Socket socket, String basePath) {
-        this(socket);
-        this.requestRouter = new RequestRouter(basePath);
-    }
-
     public RequestDispatcher(Socket socket, RequestRouter requestRouter) {
-        this(socket, new String());
-        this.requestRouter = requestRouter;
+        this(socket);
         this.middlewareService = new MiddlewareService(requestRouter);
     }
 
@@ -55,7 +48,7 @@ public class RequestDispatcher implements Runnable {
 
     private void dispatch(InputStream request) {
         HttpResponse httpResponse = HttpResponse.builder().build();
-        HttpRequest httpRequest = null;
+        HttpRequest httpRequest;
         try {
             httpRequest = new HttpRequest(request);
             middlewareService.execute(httpRequest, httpResponse);
