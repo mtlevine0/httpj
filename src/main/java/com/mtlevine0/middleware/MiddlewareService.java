@@ -40,7 +40,9 @@ public class MiddlewareService {
         Exception middlewareException = null;
         for(Middleware middleware: middlewares) {
             try {
-                middleware.handle(request, response);
+                if(middleware.handle(request, response)) {
+                    break;
+                }
             } catch (Exception e) {
                 middlewareException = e;
             }

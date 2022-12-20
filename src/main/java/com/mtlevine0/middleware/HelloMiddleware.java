@@ -9,10 +9,11 @@ public class HelloMiddleware implements Middleware {
     private static final Logger LOGGER = Logger.getLogger(HelloMiddleware.class.getName());
 
     @Override
-    public void handle(HttpRequest request, HttpResponse response) {
+    public Boolean handle(HttpRequest request, HttpResponse response) {
         if (request.getQueryParams().containsKey("name")) {
             String name = request.getQueryParams().get("name");
             LOGGER.info("Hello " + name + "!\n");
         }
+        return false;
     }
 }

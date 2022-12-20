@@ -15,7 +15,7 @@ public class GzipMiddleware implements Middleware {
     private static final String GZIP_ENCODING = "gzip";
 
     @Override
-    public void handle(HttpRequest request, HttpResponse response) throws IOException {
+    public Boolean handle(HttpRequest request, HttpResponse response) throws IOException {
         byte[] body = response.getBody();
         if (Objects.nonNull(body) && isGzip(request.getHeaders())) {
             ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
@@ -28,6 +28,7 @@ public class GzipMiddleware implements Middleware {
 
             response.getHeaders().put(CONTENT_ENCODING_HEADER, GZIP_ENCODING);
         }
+        return false;
     }
 
     private boolean isGzip(Map<String, String> httpRequestHeaders) {

@@ -14,8 +14,8 @@ public class RouterMiddleware implements Middleware {
     }
 
     @Override
-    public void handle(HttpRequest request, HttpResponse response) throws IOException {
+    public Boolean handle(HttpRequest request, HttpResponse response) throws IOException {
         router.route(request, response);
-
+        return false;
     }
 }

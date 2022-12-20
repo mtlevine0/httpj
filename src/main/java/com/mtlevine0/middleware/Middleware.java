@@ -7,6 +7,6 @@ import java.io.IOException;
 
 public interface Middleware {
 
-    public void handle(HttpRequest request, HttpResponse response) throws IOException;
+    public Boolean handle(HttpRequest request, HttpResponse response) throws IOException;
 
 }
