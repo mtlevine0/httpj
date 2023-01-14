@@ -1,10 +1,10 @@
 package com.mtlevine0.router;
 
-import com.mtlevine0.FeatureFlag;
-import com.mtlevine0.FeatureFlagContext;
-import com.mtlevine0.request.HttpMethod;
+import com.mtlevine0.httpj.FeatureFlag;
+import com.mtlevine0.httpj.FeatureFlagContext;
+import com.mtlevine0.httpj.request.HttpMethod;
 
-import com.mtlevine0.response.HttpResponse;
+import com.mtlevine0.httpj.response.HttpResponse;
 import org.junit.Before;
 import org.junit.Test;
 
