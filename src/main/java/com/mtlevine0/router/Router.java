@@ -52,7 +52,7 @@ public class Router {
         }
     }
 
-    public boolean matchesRoute(HttpRequest httpRequest) {
+    private boolean matchesRoute(HttpRequest httpRequest) {
         Route route = new Route(httpRequest.getPath(), httpRequest.getMethod());
         return handlers.containsKey(route);
     }
