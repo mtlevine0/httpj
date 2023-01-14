@@ -7,15 +7,18 @@ import com.mtlevine0.httpj.request.HttpMethod;
 import com.mtlevine0.httpj.request.HttpRequest;
 import com.mtlevine0.httpj.response.HttpResponse;
 import com.mtlevine0.router.handlers.*;
+import com.mtlevine0.router.middleware.Middleware;
 
 import java.io.IOException;
 import java.util.*;
 
 public class Router {
-    private Map<Route, RequestHandler> handlers;
+    private List<Middleware> preRouteHandlerMiddlewares;
+    private Map<Route, RequestHandler> routeHandlers;
+    private List<Middleware> postRouteHandlerMiddlewares;
 
     public Router(String basePath) {
-        handlers = new LinkedHashMap<>();
+        routeHandlers = new LinkedHashMap<>();
         registerRoute("/routes", HttpMethod.GET, new RouteInfoHandler(this));
         registerRoute("*", HttpMethod.HEAD, new DefaultCustomRequestHandler());
         if (FeatureFlagContext.getInstance().isFeatureActive(FeatureFlag.STATIC_FILE_SERVER)) {
@@ -24,6 +27,7 @@ public class Router {
     }
 
     public HttpResponse route(HttpRequest httpRequest, HttpResponse httpResponse) throws IOException, MethodNotAllowedException {
+        executeMiddleware(preRouteHandlerMiddlewares, httpRequest, httpResponse);
         if (matchesRoute(httpRequest)) {
             handleRoute(httpRequest, httpResponse);
         } else {
@@ -33,32 +37,76 @@ public class Router {
                 handleRouteNotMatched(httpRequest);
             }
         }
+        executeMiddleware(postRouteHandlerMiddlewares, httpRequest, httpResponse);
         return httpResponse;
     }
 
+    public void registerPreRouteHandlerMiddleware(Middleware middleware) {
+        this.preRouteHandlerMiddlewares.add(middleware);
+    }
+
+    public void registerPostRouterHandlerMiddleware(Middleware middleware) {
+        this.postRouteHandlerMiddlewares.add(middleware);
+    }
+
+    public void registerRoute(String path, HttpMethod httpMethod, RequestHandler requestHandler) {
+        List<Route> routesMatchedByPath = findRoutesByPath(path);
+        for (Route route : routesMatchedByPath) {
+            if (route.getPath().equals(path) && route.getMethod().equals(httpMethod)) {
+                throw new IllegalArgumentException(httpMethod + " - " + path + " - " + requestHandler.getClass() +
+                        ": Conflicts with the following routes:\n" +
+                        route.getMethod() + " - " + route.getPath() + " - " + routeHandlers.get(route).getClass());
+            }
+        }
+        if (path.equals("*") && (requestHandler instanceof CustomRequestHandler)) {
+            throw new IllegalArgumentException("Class of type CustomRequestHandler cannot be registered to a wildcard path.");
+        }
+        if (requestHandler instanceof CustomRequestHandler) {
+            this.routeHandlers.put(new Route(path, HttpMethod.HEAD), new DefaultCustomRequestHandler());
+        }
+        this.routeHandlers.put(new Route(path, httpMethod), requestHandler);
+    }
+
+    public Map<Route, RequestHandler> getRouteHandlers() {
+        return this.routeHandlers;
+    }
+
+    private void executeMiddleware(List<Middleware> middlewares, HttpRequest httpRequest, HttpResponse httpResponse) {
+        if (Objects.isNull(middlewares)) {
+            return;
+        }
+        for (Middleware middleware : middlewares) {
+            try {
+                middleware.handle(httpRequest, httpResponse);
+            } catch (Exception e) {
+
+            }
+        }
+    }
+
     private void handleWildCardRoute(HttpRequest httpRequest, HttpResponse httpResponse) throws IOException {
-        handlers.get(new Route("*", httpRequest.getMethod())).handleRequest(httpRequest, httpResponse);
+        routeHandlers.get(new Route("*", httpRequest.getMethod())).handleRequest(httpRequest, httpResponse);
     }
 
     private boolean isCustomHandlerRegistered(HttpRequest httpRequest) {
-        return handlers.containsKey(new Route(httpRequest.getPath(), httpRequest.getMethod())) &&
-                handlers.get(new Route(httpRequest.getPath(), httpRequest.getMethod())) instanceof CustomRequestHandler;
+        return routeHandlers.containsKey(new Route(httpRequest.getPath(), httpRequest.getMethod())) &&
+                routeHandlers.get(new Route(httpRequest.getPath(), httpRequest.getMethod())) instanceof CustomRequestHandler;
     }
 
     private void handleRoute(HttpRequest httpRequest, HttpResponse httpResponse) throws IOException {
         if (matchesRoute(httpRequest)) {
             Route route = new Route(httpRequest.getPath(), httpRequest.getMethod());
-            handlers.get(route).handleRequest(httpRequest, httpResponse);
+            routeHandlers.get(route).handleRequest(httpRequest, httpResponse);
         }
     }
 
     private boolean matchesRoute(HttpRequest httpRequest) {
         Route route = new Route(httpRequest.getPath(), httpRequest.getMethod());
-        return handlers.containsKey(route);
+        return routeHandlers.containsKey(route);
     }
 
     private boolean isWildCardPath(HttpRequest request) {
-        return handlers.containsKey(new Route("*", request.getMethod())) ;
+        return routeHandlers.containsKey(new Route("*", request.getMethod())) ;
     }
 
     private void handleRouteNotMatched(HttpRequest httpRequest) {
@@ -69,7 +117,7 @@ public class Router {
 
     private List<Route> findRoutesByPath(String path) {
         List<Route> matchedRoutes = new ArrayList<>();
-        for (Route route : handlers.keySet()) {
+        for (Route route : routeHandlers.keySet()) {
             if (route.getPath().equals(path)) {
                 matchedRoutes.add(route);
             }
@@ -77,33 +125,11 @@ public class Router {
         return matchedRoutes;
     }
 
-    public void registerRoute(String path, HttpMethod httpMethod, RequestHandler requestHandler) {
-        List<Route> routesMatchedByPath = findRoutesByPath(path);
-        for (Route route : routesMatchedByPath) {
-            if (route.getPath().equals(path) && route.getMethod().equals(httpMethod)) {
-                throw new IllegalArgumentException(httpMethod + " - " + path + " - " + requestHandler.getClass() +
-                    ": Conflicts with the following routes:\n" +
-                    route.getMethod() + " - " + route.getPath() + " - " + handlers.get(route).getClass());
-            }
-        }
-        if (path.equals("*") && (requestHandler instanceof CustomRequestHandler)) {
-            throw new IllegalArgumentException("Class of type CustomRequestHandler cannot be registered to a wildcard path.");
-        }
-        if (requestHandler instanceof CustomRequestHandler) {
-            this.handlers.put(new Route(path, HttpMethod.HEAD), new DefaultCustomRequestHandler());
-        }
-        this.handlers.put(new Route(path, httpMethod), requestHandler);
-    }
-
-    public Map<Route, RequestHandler> getHandlers() {
-        return this.handlers;
-    }
-
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();
-        for (Route route : handlers.keySet()) {
-            sb.append(route.getMethod() + " - " + route.getPath() + " - " + handlers.get(route).getClass().getName() + "\n");
+        for (Route route : routeHandlers.keySet()) {
+            sb.append(route.getMethod() + " - " + route.getPath() + " - " + routeHandlers.get(route).getClass().getName() + "\n");
         }
         return sb.toString();
     }
