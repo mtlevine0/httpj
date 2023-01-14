@@ -1,7 +1,7 @@
 package com.mtlevine0;
 
-import com.mtlevine0.handler.CustomRequestHandler;
-import com.mtlevine0.handler.Router;
+import com.mtlevine0.router.CustomRequestHandler;
+import com.mtlevine0.router.Router;
 import com.mtlevine0.middleware.MiddlewareService;
 import com.mtlevine0.request.HttpMethod;
 import com.mtlevine0.request.HttpRequest;

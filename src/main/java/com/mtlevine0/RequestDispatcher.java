@@ -3,7 +3,7 @@ package com.mtlevine0;
 import com.mtlevine0.exception.HttpRequestParsingException;
 import com.mtlevine0.exception.MethodNotAllowedException;
 import com.mtlevine0.exception.MethodNotImplementedException;
-import com.mtlevine0.handler.Router;
+import com.mtlevine0.router.Router;
 import com.mtlevine0.middleware.MiddlewareService;
 import com.mtlevine0.request.HttpRequest;
 import com.mtlevine0.response.HttpResponse;

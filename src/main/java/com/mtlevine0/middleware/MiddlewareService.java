@@ -2,8 +2,8 @@ package com.mtlevine0.middleware;
 
 import com.mtlevine0.FeatureFlag;
 import com.mtlevine0.FeatureFlagContext;
-import com.mtlevine0.handler.CustomRequestHandler;
-import com.mtlevine0.handler.Router;
+import com.mtlevine0.router.CustomRequestHandler;
+import com.mtlevine0.router.Router;
 import com.mtlevine0.request.HttpRequest;
 import com.mtlevine0.response.HttpResponse;
 import com.mtlevine0.response.HttpStatus;
