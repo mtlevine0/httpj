@@ -12,27 +12,27 @@ import java.io.IOException;
 
 import static org.junit.Assert.assertEquals;
 
-public class RequestRouterStaticServerEnabledTest extends RequestRouterTest {
+public class RouterStaticServerEnabledTest extends RouterTest {
 
     @Before
     public void setup() {
         basePath = "../httpj";
         FeatureFlagContext.getInstance().enableFeature(FeatureFlag.STATIC_FILE_SERVER);
-        requestRouter = new RequestRouter(basePath);
-        requestRouter.registerRoute("/test", HttpMethod.GET, new CustomHandler());
+        router = new Router(basePath);
+        router.registerRoute("/test", HttpMethod.GET, new CustomHandler());
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void ShouldExecuteRequestHandler_WhenRequestHandlerRegisteredToWildCardRouteAndHttpRequestMatchesRoute() throws IOException {
-        requestRouter.registerRoute("*", HttpMethod.GET, new RequestRouterStaticServerEnabledTest.DefaultRequestHandler());
-        assertEquals(getBasicHttpResponse("Default Body!"), requestRouter.route(getBasicGetRequest("/"),
+        router.registerRoute("*", HttpMethod.GET, new RouterStaticServerEnabledTest.DefaultRequestHandler());
+        assertEquals(getBasicHttpResponse("Default Body!"), router.route(getBasicGetRequest("/"),
                 HttpResponse.builder().build()));
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void ShouldExecuteWildCardPathCustomRequestHandler_WhenRequestPathDoesNotMatchStaticPathRoutes() throws IOException {
-        requestRouter.registerRoute("*", HttpMethod.GET, new RequestRouterStaticServerEnabledTest.DefaultRequestHandler());
-        assertEquals(getBasicHttpResponse("Default Body!"), requestRouter.route(getBasicGetRequest("/"),
+        router.registerRoute("*", HttpMethod.GET, new RouterStaticServerEnabledTest.DefaultRequestHandler());
+        assertEquals(getBasicHttpResponse("Default Body!"), router.route(getBasicGetRequest("/"),
                 HttpResponse.builder().build()));
     }
 

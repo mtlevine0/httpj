@@ -11,10 +11,10 @@ import com.mtlevine0.response.HttpStatus;
 import java.io.IOException;
 import java.util.*;
 
-public class RequestRouter {
+public class Router {
     private Map<Route, RequestHandler> handlers;
 
-    public RequestRouter(String basePath) {
+    public Router(String basePath) {
         handlers = new LinkedHashMap<>();
         registerRoute("/routes", HttpMethod.GET, new RouteInfoHandler(this));
         registerRoute("*", HttpMethod.HEAD, new DefaultCustomRequestHandler());
@@ -140,15 +140,15 @@ public class RequestRouter {
     }
 
     public class RouteInfoHandler implements CustomRequestHandler {
-        private RequestRouter requestRouter;
+        private Router router;
 
-        public RouteInfoHandler(RequestRouter router) {
-            this.requestRouter = router;
+        public RouteInfoHandler(Router router) {
+            this.router = router;
         }
 
         @Override
         public void handleRequest(HttpRequest httpRequest, HttpResponse response) {
-            response.setBody(requestRouter.toString().getBytes());
+            response.setBody(router.toString().getBytes());
             response.setStatus(HttpStatus.OK);
         }
     }

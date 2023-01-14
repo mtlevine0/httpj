@@ -8,16 +8,16 @@ import org.junit.Before;
 
 import java.util.Objects;
 
-public class RequestRouterTest {
+public class RouterTest {
 
-    protected RequestRouter requestRouter;
+    protected Router router;
     protected String basePath;
 
     @Before
     public void setup() {
         basePath = "../httpj";
-        requestRouter = new RequestRouter(basePath);
-        requestRouter.registerRoute("/test", HttpMethod.GET, new CustomHandler());
+        router = new Router(basePath);
+        router.registerRoute("/test", HttpMethod.GET, new CustomHandler());
     }
 
     protected class CustomHandler implements CustomRequestHandler {

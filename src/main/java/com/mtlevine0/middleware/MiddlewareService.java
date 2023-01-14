@@ -3,7 +3,7 @@ package com.mtlevine0.middleware;
 import com.mtlevine0.FeatureFlag;
 import com.mtlevine0.FeatureFlagContext;
 import com.mtlevine0.handler.CustomRequestHandler;
-import com.mtlevine0.handler.RequestRouter;
+import com.mtlevine0.handler.Router;
 import com.mtlevine0.request.HttpRequest;
 import com.mtlevine0.response.HttpResponse;
 import com.mtlevine0.response.HttpStatus;
@@ -17,7 +17,7 @@ public class MiddlewareService {
     private static List<Middleware> middlewares;
     private int routerIndex = 0;
 
-    public MiddlewareService(RequestRouter router) {
+    public MiddlewareService(Router router) {
         middlewares = new ArrayList<>();
         middlewares.add(new RouterMiddleware(router));
 

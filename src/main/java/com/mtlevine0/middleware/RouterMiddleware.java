@@ -1,15 +1,15 @@
 package com.mtlevine0.middleware;
 
-import com.mtlevine0.handler.RequestRouter;
+import com.mtlevine0.handler.Router;
 import com.mtlevine0.request.HttpRequest;
 import com.mtlevine0.response.HttpResponse;
 
 import java.io.IOException;
 
 public class RouterMiddleware implements Middleware {
-    private RequestRouter router;
+    private Router router;
 
-    public RouterMiddleware(RequestRouter router) {
+    public RouterMiddleware(Router router) {
         this.router = router;
     }
 

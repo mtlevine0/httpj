@@ -1,7 +1,7 @@
 package com.mtlevine0;
 
 import com.mtlevine0.handler.CustomRequestHandler;
-import com.mtlevine0.handler.RequestRouter;
+import com.mtlevine0.handler.Router;
 import com.mtlevine0.middleware.MiddlewareService;
 import com.mtlevine0.request.HttpMethod;
 import com.mtlevine0.request.HttpRequest;
@@ -43,13 +43,13 @@ public class HttpServer {
         String basePath = "../httpj";
         Executor executor = Executors.newFixedThreadPool(10);
 
-        RequestRouter requestRouter = new RequestRouter(basePath);
-        requestRouter.registerRoute("/info", HttpMethod.GET, new InfoHandler());
-        requestRouter.registerRoute("/middleware", HttpMethod.GET,
+        Router router = new Router(basePath);
+        router.registerRoute("/info", HttpMethod.GET, new InfoHandler());
+        router.registerRoute("/middleware", HttpMethod.GET,
                 new MiddlewareService.MiddlewareServiceHandler());
         serverSocket = new ServerSocket(port);
         while (serverSocket.isBound()) {
-            executor.execute(new RequestDispatcher(serverSocket.accept(), requestRouter));
+            executor.execute(new RequestDispatcher(serverSocket.accept(), router));
         }
     }
 

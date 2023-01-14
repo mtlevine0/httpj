@@ -3,7 +3,7 @@ package com.mtlevine0;
 import com.mtlevine0.exception.HttpRequestParsingException;
 import com.mtlevine0.exception.MethodNotAllowedException;
 import com.mtlevine0.exception.MethodNotImplementedException;
-import com.mtlevine0.handler.RequestRouter;
+import com.mtlevine0.handler.Router;
 import com.mtlevine0.middleware.MiddlewareService;
 import com.mtlevine0.request.HttpRequest;
 import com.mtlevine0.response.HttpResponse;
@@ -21,7 +21,7 @@ public class RequestDispatcher implements Runnable {
     private final Socket socket;
     private OutputStream out;
     private InputStream in;
-    private RequestRouter requestRouter;
+    private Router router;
     private MiddlewareService middlewareService;
 
     private RequestDispatcher(Socket socket) {
@@ -34,13 +34,13 @@ public class RequestDispatcher implements Runnable {
 
     public RequestDispatcher(Socket socket, String basePath) {
         this(socket);
-        this.requestRouter = new RequestRouter(basePath);
+        this.router = new Router(basePath);
     }
 
-    public RequestDispatcher(Socket socket, RequestRouter requestRouter) {
+    public RequestDispatcher(Socket socket, Router router) {
         this(socket, new String());
-        this.requestRouter = requestRouter;
-        this.middlewareService = new MiddlewareService(requestRouter);
+        this.router = router;
+        this.middlewareService = new MiddlewareService(router);
     }
 
     @Override
