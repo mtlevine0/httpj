@@ -1,10 +1,6 @@
 package com.mtlevine0.httpj;
 
-import com.mtlevine0.httpj.FeatureFlag;
-import com.mtlevine0.httpj.FeatureFlagContext;
-import com.mtlevine0.httpj.HttpServer;
-import com.mtlevine0.httpj.RequestDispatcher;
-import com.mtlevine0.router.RequestHandler;
+import com.mtlevine0.router.handlers.RequestHandler;
 import com.mtlevine0.router.Router;
 import com.mtlevine0.httpj.request.HttpMethod;
 import com.mtlevine0.httpj.request.HttpRequest;

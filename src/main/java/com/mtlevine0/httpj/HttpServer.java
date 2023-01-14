@@ -1,6 +1,6 @@
 package com.mtlevine0.httpj;
 
-import com.mtlevine0.router.CustomRequestHandler;
+import com.mtlevine0.router.handlers.CustomRequestHandler;
 import com.mtlevine0.router.Router;
 import com.mtlevine0.router.middleware.MiddlewareService;
 import com.mtlevine0.httpj.request.HttpMethod;

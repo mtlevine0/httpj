@@ -2,7 +2,7 @@ package com.mtlevine0.router.middleware;
 
 import com.mtlevine0.httpj.FeatureFlag;
 import com.mtlevine0.httpj.FeatureFlagContext;
-import com.mtlevine0.router.CustomRequestHandler;
+import com.mtlevine0.router.handlers.CustomRequestHandler;
 import com.mtlevine0.router.Router;
 import com.mtlevine0.httpj.request.HttpRequest;
 import com.mtlevine0.httpj.response.HttpResponse;

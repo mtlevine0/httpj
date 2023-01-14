@@ -4,6 +4,8 @@ import com.mtlevine0.httpj.request.HttpMethod;
 import com.mtlevine0.httpj.request.HttpRequest;
 import com.mtlevine0.httpj.response.HttpResponse;
 import com.mtlevine0.httpj.response.HttpStatus;
+import com.mtlevine0.router.handlers.CustomRequestHandler;
+import com.mtlevine0.router.handlers.RequestHandler;
 import org.junit.Before;
 
 import java.util.Objects;

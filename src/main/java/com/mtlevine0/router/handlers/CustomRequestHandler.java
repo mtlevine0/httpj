@@ -1,4 +1,4 @@
-package com.mtlevine0.router;
+package com.mtlevine0.router.handlers;
 
 public interface CustomRequestHandler extends RequestHandler {
 }

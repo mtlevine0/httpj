@@ -7,6 +7,10 @@ import com.mtlevine0.httpj.request.HttpMethod;
 import com.mtlevine0.httpj.request.HttpRequest;
 import com.mtlevine0.httpj.response.HttpResponse;
 import com.mtlevine0.httpj.response.HttpStatus;
+import com.mtlevine0.router.handlers.CustomRequestHandler;
+import com.mtlevine0.router.handlers.DefaultCustomRequestHandler;
+import com.mtlevine0.router.handlers.RequestHandler;
+import com.mtlevine0.router.handlers.StaticResourceRequestHandler;
 
 import java.io.IOException;
 import java.util.*;
