@@ -6,11 +6,7 @@ import com.mtlevine0.httpj.exception.MethodNotAllowedException;
 import com.mtlevine0.httpj.request.HttpMethod;
 import com.mtlevine0.httpj.request.HttpRequest;
 import com.mtlevine0.httpj.response.HttpResponse;
-import com.mtlevine0.httpj.response.HttpStatus;
-import com.mtlevine0.router.handlers.CustomRequestHandler;
-import com.mtlevine0.router.handlers.DefaultCustomRequestHandler;
-import com.mtlevine0.router.handlers.RequestHandler;
-import com.mtlevine0.router.handlers.StaticResourceRequestHandler;
+import com.mtlevine0.router.handlers.*;
 
 import java.io.IOException;
 import java.util.*;
@@ -110,19 +106,5 @@ public class Router {
             sb.append(route.getMethod() + " - " + route.getPath() + " - " + handlers.get(route).getClass().getName() + "\n");
         }
         return sb.toString();
-    }
-
-    public class RouteInfoHandler implements CustomRequestHandler {
-        private Router router;
-
-        public RouteInfoHandler(Router router) {
-            this.router = router;
-        }
-
-        @Override
-        public void handleRequest(HttpRequest httpRequest, HttpResponse response) {
-            response.setBody(router.toString().getBytes());
-            response.setStatus(HttpStatus.OK);
-        }
     }
 }
