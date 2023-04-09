@@ -19,7 +19,6 @@ public class MiddlewareService {
 
     public MiddlewareService(Router router) {
         middlewares = new ArrayList<>();
-        middlewares.add(new RouterMiddleware(router));
 
         registerPreRouter(new LoggingMiddleware());
         registerPostRouter(new HelloMiddleware());
@@ -40,7 +39,7 @@ public class MiddlewareService {
         Exception middlewareException = null;
         for(Middleware middleware: middlewares) {
             try {
-                middleware.handle(request, response);
+                middleware.handleRequest(request, response);
             } catch (Exception e) {
                 middlewareException = e;
             }

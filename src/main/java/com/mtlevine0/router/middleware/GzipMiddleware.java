@@ -2,9 +2,9 @@ package com.mtlevine0.router.middleware;
 
 import com.mtlevine0.httpj.request.HttpRequest;
 import com.mtlevine0.httpj.response.HttpResponse;
+import lombok.SneakyThrows;
 
 import java.io.ByteArrayOutputStream;
-import java.io.IOException;
 import java.util.Map;
 import java.util.Objects;
 import java.util.zip.GZIPOutputStream;
@@ -15,7 +15,8 @@ public class GzipMiddleware implements Middleware {
     private static final String GZIP_ENCODING = "gzip";
 
     @Override
-    public void handle(HttpRequest request, HttpResponse response) throws IOException {
+    @SneakyThrows
+    public void handleRequest(HttpRequest request, HttpResponse response) {
         byte[] body = response.getBody();
         if (Objects.nonNull(body) && isGzip(request.getHeaders())) {
             ByteArrayOutputStream outputStream = new ByteArrayOutputStream();

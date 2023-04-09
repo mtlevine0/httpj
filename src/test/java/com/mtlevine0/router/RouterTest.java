@@ -3,53 +3,83 @@ package com.mtlevine0.router;
 import com.mtlevine0.httpj.request.HttpMethod;
 import com.mtlevine0.httpj.request.HttpRequest;
 import com.mtlevine0.httpj.response.HttpResponse;
-import com.mtlevine0.httpj.response.HttpStatus;
-import com.mtlevine0.router.handlers.CustomRequestHandler;
-import com.mtlevine0.router.handlers.RequestHandler;
+import com.mtlevine0.router.exception.RouteConflictException;
 import org.junit.Before;
+import org.junit.Test;
 
-import java.util.Objects;
+import static org.junit.Assert.*;
 
 public class RouterTest {
 
     protected Router router;
-    protected String basePath;
 
     @Before
     public void setup() {
-        basePath = "../httpj";
-        router = new Router(basePath);
-        router.registerRoute("/test", HttpMethod.GET, new CustomHandler());
+        router = new Router();
     }
 
-    protected class CustomHandler implements CustomRequestHandler {
-        @Override
-        public void handleRequest(HttpRequest httpRequest, HttpResponse httpResponse) {
-            httpResponse.setBody("Custom Body!".getBytes());
-            httpResponse.setStatus(HttpStatus.OK);
-        }
+    // Given a router with a single route registered
+    // When I route a HttpRequest with method and path that matches the registered route
+    // Then the routes RequestHandler should process the HttpRequest
+    @Test
+    public void handleRequest_whenHandleRequest_thenRequestRoutedAndHandled() {
+        HttpRequest httpRequest = generateHttpRequest();
+        HttpResponse httpResponse = generateEmptyHttpResponse();
+        String resBody = "info handler";
+
+        Route route = new Route("/info", HttpMethod.GET, ((req, res) -> {
+            res.setBody(resBody.getBytes());
+        }));
+        router.registerRoute(route);
+
+        router.handleRequest(httpRequest, httpResponse);
+
+        assertEquals(resBody, new String(httpResponse.getBody()));
     }
 
-    protected class DefaultRequestHandler implements RequestHandler {
-        @Override
-        public void handleRequest(HttpRequest httpRequest, HttpResponse httpResponse) {
-            httpResponse.setBody("Default Body!".getBytes());
-            httpResponse.setStatus(HttpStatus.OK);
-        }
+    // Given a router with a single route registered
+    // When I register a conflicting route
+    // Then the router should raise an exception
+    @Test(expected = RouteConflictException.class)
+    public void registerRoute_whenRegisterRouteWithConflict_thenThrowRouteConflictException() {
+        router.registerRoute(new Route("/test", HttpMethod.GET, null));
+        router.registerRoute(new Route("/test", HttpMethod.GET, null));
     }
 
-    protected HttpRequest getBasicRequest(HttpMethod method, String path) {
-        HttpRequest request = new HttpRequest();
-        request.setPath(path);
-        request.setMethod(method);
-        return request;
+    // Given a router with two registered routes and a child router
+    // When I route a HttpRequest that matches the child router
+    // Then the router should route the request to the child router
+    @Test
+    public void test() {
+        HttpRequest httpRequest = generateHttpRequest();
+        HttpResponse httpResponse = generateEmptyHttpResponse();
+
+        router.registerRoute(new Route("/info", HttpMethod.GET, ((req, res) -> {
+            res.setBody("info".getBytes());
+        })));
+
+        Router childRouter = new Router();
+        childRouter.registerRoute(new Route("/", HttpMethod.GET, ((req, res) -> {
+            res.setBody("cats".getBytes());
+        })));
+        router.registerRoute(new Route("/api/v1/cats", childRouter));
+
+        httpRequest.setPath("/api/v1/cats/");
+        router.handleRequest(httpRequest, httpResponse);
+
+        System.out.println(new String(httpResponse.getBody()));
+
     }
 
-    protected HttpRequest getBasicGetRequest(String path) {
-        return getBasicRequest(HttpMethod.GET, path);
+    private HttpRequest generateHttpRequest() {
+        HttpRequest httpRequest = new HttpRequest();
+        httpRequest.setMethod(HttpMethod.GET);
+        httpRequest.setPath("/info");
+        return httpRequest;
     }
 
-    protected HttpResponse getBasicHttpResponse(String body) {
-        return HttpResponse.builder().body(Objects.nonNull(body) ? body.getBytes() : null).status(HttpStatus.OK).build();
+    private HttpResponse generateEmptyHttpResponse() {
+        return HttpResponse.builder().build();
     }
+
 }

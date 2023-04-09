@@ -7,8 +7,8 @@ import com.mtlevine0.router.utils.DirectoryUtil;
 import com.mtlevine0.router.utils.ResourceUtil;
 import com.mtlevine0.httpj.response.HttpResponse;
 import com.mtlevine0.httpj.response.HttpStatus;
+import lombok.SneakyThrows;
 
-import java.io.IOException;
 import java.nio.file.NoSuchFileException;
 
 public class StaticResourceRequestHandler implements RequestHandler {
@@ -20,7 +20,8 @@ public class StaticResourceRequestHandler implements RequestHandler {
     }
 
     @Override
-    public void handleRequest(HttpRequest request, HttpResponse response) throws IOException {
+    @SneakyThrows
+    public void handleRequest(HttpRequest request, HttpResponse response) {
         byte[] body;
         if (ResourceUtil.isDirectory(basePath, request.getPath())) {
             if (FeatureFlagContext.getInstance().isFeatureActive(FeatureFlag.DIRECTORY_LISTING)) {

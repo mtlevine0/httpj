@@ -10,7 +10,7 @@ public class LoggingMiddleware implements Middleware {
     private static final Logger LOGGER = Logger.getLogger(LoggingMiddleware.class.getName());
 
     @Override
-    public void handle(HttpRequest request, HttpResponse response) {
+    public void handleRequest(HttpRequest request, HttpResponse response) {
         Map<String, String> headers = request.getHeaders();
         StringBuilder sb = new StringBuilder();
         sb.append(request.getMethod() + " - " + request.getPath() + "\n");
