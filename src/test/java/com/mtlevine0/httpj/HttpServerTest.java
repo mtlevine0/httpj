@@ -1,20 +1,19 @@
 package com.mtlevine0.httpj;
 
-import com.mtlevine0.httpj.request.HttpMethod;
+import com.mtlevine0.httpj.common.RequestHandler;
+import com.mtlevine0.httpj.common.request.HttpMethod;
+import com.mtlevine0.router.BasicRouter;
 import com.mtlevine0.router.Route;
-import com.mtlevine0.router.handlers.CustomRequestHandler;
 import com.mtlevine0.router.Router;
-import com.mtlevine0.httpj.request.HttpRequest;
-import com.mtlevine0.httpj.response.HttpResponse;
-import com.mtlevine0.httpj.response.HttpStatus;
-import com.mtlevine0.router.middleware.MiddlewareService;
+import com.mtlevine0.httpj.common.CustomRequestHandler;
+import com.mtlevine0.httpj.common.request.HttpRequest;
+import com.mtlevine0.httpj.common.response.HttpResponse;
+import com.mtlevine0.httpj.common.response.HttpStatus;
 
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.time.Instant;
 import java.util.Map;
-import java.util.concurrent.Executor;
-import java.util.concurrent.Executors;
 import java.util.logging.Logger;
 
 public class HttpServerTest {
@@ -26,8 +25,15 @@ public class HttpServerTest {
         FeatureFlagContext.getInstance().enableFeature(FeatureFlag.STATIC_FILE_SERVER);
         LOGGER.info("Starting httpj Server...");
         logFeatureFlags();
-        HttpServerTest server = new HttpServerTest();
-        server.start(8080);
+
+        Router router = new BasicRouter();
+        router.registerRoute(new Route("/test", HttpMethod.GET, (req, res) -> {
+            res.setStatus(HttpStatus.OK);
+            res.setBody("testing123".getBytes());
+        }));
+
+        HttpJ httpJServer = new HttpJ(router);
+        httpJServer.start(8080);
     }
 
     private static void logFeatureFlags() {
@@ -40,18 +46,18 @@ public class HttpServerTest {
         LOGGER.info(sb.toString());
     }
 
-    public void start(int port) throws IOException {
-        Executor executor = Executors.newFixedThreadPool(10);
-
-        Router router = new Router();
-        router.registerRoute(new Route("/info", HttpMethod.GET, new HttpServerTest.InfoHandler()));
-        router.registerRoute(new Route("/middleware", HttpMethod.GET,
-                new MiddlewareService.MiddlewareServiceHandler()));
-        serverSocket = new ServerSocket(port);
-        while (serverSocket.isBound()) {
-            executor.execute(new RequestDispatcher(serverSocket.accept(), router));
-        }
-    }
+//    public void start(int port) throws IOException {
+//        Executor executor = Executors.newFixedThreadPool(10);
+//
+//        Router router = new BasicRouter();
+//        router.registerRoute(new Route("/info", HttpMethod.GET, new HttpServerTest.InfoHandler()));
+//        router.registerRoute(new Route("/middleware", HttpMethod.GET,
+//                new MiddlewareService.MiddlewareServiceHandler()));
+//        serverSocket = new ServerSocket(port);
+//        while (serverSocket.isBound()) {
+//            executor.execute(new RequestDispatcher(serverSocket.accept(), router));
+//        }
+//    }
 
     public void stop() throws IOException {
         serverSocket.close();

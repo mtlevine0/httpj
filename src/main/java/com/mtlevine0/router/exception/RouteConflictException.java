@@ -1,6 +1,5 @@
 package com.mtlevine0.router.exception;
 
-import com.mtlevine0.httpj.request.HttpMethod;
 import com.mtlevine0.router.Route;
 
 public class RouteConflictException extends RuntimeException {

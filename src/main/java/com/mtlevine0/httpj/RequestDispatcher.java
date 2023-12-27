@@ -1,12 +1,9 @@
 package com.mtlevine0.httpj;
 
-import com.mtlevine0.httpj.exception.HttpRequestParsingException;
-import com.mtlevine0.httpj.exception.MethodNotAllowedException;
-import com.mtlevine0.httpj.exception.MethodNotImplementedException;
-import com.mtlevine0.router.Router;
-import com.mtlevine0.httpj.request.HttpRequest;
-import com.mtlevine0.httpj.response.HttpResponse;
-import com.mtlevine0.httpj.response.HttpStatus;
+import com.mtlevine0.httpj.common.RequestHandler;
+import com.mtlevine0.httpj.common.request.HttpRequest;
+import com.mtlevine0.httpj.common.response.HttpResponse;
+import com.mtlevine0.httpj.common.response.HttpStatus;
 
 import java.io.*;
 import java.net.Socket;
@@ -18,7 +15,7 @@ public class RequestDispatcher implements Runnable {
     private final Socket socket;
     private OutputStream out;
     private InputStream in;
-    private Router router;
+    private RequestHandler requestHandler;
 
     private RequestDispatcher(Socket socket) {
         this.socket = socket;
@@ -28,9 +25,9 @@ public class RequestDispatcher implements Runnable {
         } catch (IOException e) { }
     }
 
-    public RequestDispatcher(Socket socket, Router router) {
+    public RequestDispatcher(Socket socket, RequestHandler requestHandler) {
         this(socket);
-        this.router = router;
+        this.requestHandler = requestHandler;
     }
 
     @Override
@@ -48,32 +45,18 @@ public class RequestDispatcher implements Runnable {
         HttpRequest httpRequest;
         try {
             httpRequest = new HttpRequest(request);
-            router.handleRequest(httpRequest, httpResponse);
-        } catch (MethodNotImplementedException e) {
-            // TODO: integrate error code w/ exception
-            httpResponse = generateBasicHttpResponse(HttpStatus.NOT_IMPLEMENTED);
-        } catch (MethodNotAllowedException e) {
-            httpResponse = generateBasicHttpResponse(HttpStatus.METHOD_NOT_ALLOWED);
-//        } catch (NoSuchFileException e) {
-//            httpResponse = generateBasicHttpResponse(HttpStatus.NOT_FOUND);
-//        } catch (AccessDeniedException e) {
-//            httpResponse = generateBasicHttpResponse(HttpStatus.UNAUTHORIZED);
-        } catch (HttpRequestParsingException e) {
-            e.printStackTrace();
-            httpResponse = generateBasicHttpResponse(HttpStatus.BAD_REQUEST);
+            requestHandler.handleRequest(httpRequest, httpResponse);
         } catch (Exception e) {
             e.printStackTrace();
-            httpResponse = generateBasicHttpResponse(HttpStatus.INTERNAL_SERVER_ERROR);
+            generateBasicHttpResponse(httpResponse, HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage());
         } finally {
             handleResponse(httpResponse);
         }
     }
 
-    private HttpResponse generateBasicHttpResponse(HttpStatus httpStatus) {
-        HttpResponse httpResponse;
-        httpResponse = HttpResponse.builder().status(httpStatus)
-                .body(httpStatus.getReason().getBytes()).build();
-        return httpResponse;
+    private void generateBasicHttpResponse(HttpResponse httpResponse, HttpStatus httpStatus, String message) {
+        httpResponse.setStatus(httpStatus);
+        httpResponse.setBody((httpStatus.getReason() + ": " + message).getBytes());
     }
 
     private void handleResponse(HttpResponse httpResponse) {

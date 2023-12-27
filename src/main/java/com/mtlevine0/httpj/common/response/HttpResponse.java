@@ -1,4 +1,4 @@
-package com.mtlevine0.httpj.response;
+package com.mtlevine0.httpj.common.response;
 
 import lombok.Builder;
 import lombok.Data;

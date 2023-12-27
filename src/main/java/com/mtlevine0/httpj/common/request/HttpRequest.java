@@ -1,6 +1,6 @@
-package com.mtlevine0.httpj.request;
+package com.mtlevine0.httpj.common.request;
 
-import com.mtlevine0.httpj.exception.HttpRequestParsingException;
+import com.mtlevine0.httpj.common.exception.HttpRequestParsingException;
 
 import java.io.IOException;
 import java.io.InputStream;

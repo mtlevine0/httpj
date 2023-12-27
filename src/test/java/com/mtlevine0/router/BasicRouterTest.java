@@ -1,21 +1,21 @@
 package com.mtlevine0.router;
 
-import com.mtlevine0.httpj.request.HttpMethod;
-import com.mtlevine0.httpj.request.HttpRequest;
-import com.mtlevine0.httpj.response.HttpResponse;
+import com.mtlevine0.httpj.common.request.HttpMethod;
+import com.mtlevine0.httpj.common.request.HttpRequest;
+import com.mtlevine0.httpj.common.response.HttpResponse;
 import com.mtlevine0.router.exception.RouteConflictException;
 import org.junit.Before;
 import org.junit.Test;
 
 import static org.junit.Assert.*;
 
-public class RouterTest {
+public class BasicRouterTest {
 
-    protected Router router;
+    protected BasicRouter router;
 
     @Before
     public void setup() {
-        router = new Router();
+        router = new BasicRouter();
     }
 
     // Given a router with a single route registered
@@ -44,31 +44,6 @@ public class RouterTest {
     public void registerRoute_whenRegisterRouteWithConflict_thenThrowRouteConflictException() {
         router.registerRoute(new Route("/test", HttpMethod.GET, null));
         router.registerRoute(new Route("/test", HttpMethod.GET, null));
-    }
-
-    // Given a router with two registered routes and a child router
-    // When I route a HttpRequest that matches the child router
-    // Then the router should route the request to the child router
-    @Test
-    public void test() {
-        HttpRequest httpRequest = generateHttpRequest();
-        HttpResponse httpResponse = generateEmptyHttpResponse();
-
-        router.registerRoute(new Route("/info", HttpMethod.GET, ((req, res) -> {
-            res.setBody("info".getBytes());
-        })));
-
-        Router childRouter = new Router();
-        childRouter.registerRoute(new Route("/", HttpMethod.GET, ((req, res) -> {
-            res.setBody("cats".getBytes());
-        })));
-        router.registerRoute(new Route("/api/v1/cats", childRouter));
-
-        httpRequest.setPath("/api/v1/cats/");
-        router.handleRequest(httpRequest, httpResponse);
-
-        System.out.println(new String(httpResponse.getBody()));
-
     }
 
     private HttpRequest generateHttpRequest() {

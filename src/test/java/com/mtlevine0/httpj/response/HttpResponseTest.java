@@ -1,5 +1,7 @@
 package com.mtlevine0.httpj.response;
 
+import com.mtlevine0.httpj.common.response.HttpResponse;
+import com.mtlevine0.httpj.common.response.HttpStatus;
 import org.junit.Before;
 import org.junit.Test;
 

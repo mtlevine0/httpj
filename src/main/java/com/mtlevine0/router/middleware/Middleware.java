@@ -1,6 +1,6 @@
 package com.mtlevine0.router.middleware;
 
-import com.mtlevine0.router.handlers.RequestHandler;
+import com.mtlevine0.httpj.common.RequestHandler;
 
 public interface Middleware extends RequestHandler {
 

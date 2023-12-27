@@ -1,4 +1,4 @@
-package com.mtlevine0.httpj.response;
+package com.mtlevine0.httpj.common.response;
 
 public enum HttpStatus {
     OK(200, "Ok"),

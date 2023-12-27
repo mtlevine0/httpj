@@ -1,9 +1,9 @@
 package com.mtlevine0.router;
 
-import com.mtlevine0.httpj.request.HttpMethod;
-import com.mtlevine0.httpj.request.HttpRequest;
-import com.mtlevine0.httpj.response.HttpResponse;
-import com.mtlevine0.router.handlers.RequestHandler;
+import com.mtlevine0.httpj.common.request.HttpMethod;
+import com.mtlevine0.httpj.common.request.HttpRequest;
+import com.mtlevine0.httpj.common.response.HttpResponse;
+import com.mtlevine0.httpj.common.RequestHandler;
 import lombok.SneakyThrows;
 
 import java.util.Objects;
@@ -12,9 +12,9 @@ public class Route {
     private String path;
     private HttpMethod method;
     private RequestHandler requestHandler;
-    private Router router;
+    private AdvancedRouter router;
 
-    public Route(String path, Router router) {
+    public Route(String path, AdvancedRouter router) {
         this(path, null, null);
         this.router = router;
     }
@@ -46,7 +46,7 @@ public class Route {
         return requestHandler;
     }
 
-    public Router getRouter() {
+    public AdvancedRouter getRouter() {
         return router;
     }
 

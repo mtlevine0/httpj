@@ -1,4 +1,4 @@
-package com.mtlevine0.httpj.request;
+package com.mtlevine0.httpj.common.request;
 
 public enum HttpMethod {
     GET,

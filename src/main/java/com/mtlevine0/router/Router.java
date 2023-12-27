@@ -1,45 +1,36 @@
 package com.mtlevine0.router;
 
-import com.mtlevine0.httpj.exception.MethodNotAllowedException;
-import com.mtlevine0.httpj.request.HttpRequest;
-import com.mtlevine0.httpj.response.HttpResponse;
-import com.mtlevine0.router.exception.RouteConflictException;
+import com.mtlevine0.httpj.common.RequestHandler;
+import com.mtlevine0.httpj.common.request.HttpMethod;
+import com.mtlevine0.httpj.common.request.HttpRequest;
+import com.mtlevine0.httpj.common.response.HttpResponse;
+import com.mtlevine0.router.handlers.RouteInfoHandler;
 
-import java.util.*;
+import java.util.HashSet;
+import java.util.Set;
 
-public class Router {
+public abstract class Router implements RequestHandler {
     private Set<Route> routes = new HashSet<>();
 
-    public void handleRequest(HttpRequest httpRequest, HttpResponse httpResponse) {
-        this.route(httpRequest, httpResponse);
+    public Router() {
+        registerRoute(new Route("/routes", HttpMethod.GET, new RouteInfoHandler(this)));
     }
 
-    private void route(HttpRequest httpRequest, HttpResponse httpResponse) {
-        for (Route route: routes) {
-            if (httpRequest.getPath().equals(route.getPath()) && (httpRequest.getMethod().equals(route.getMethod()))) {
-                route.handleRequest(httpRequest, httpResponse);
-                return;
-            } else if (Objects.nonNull(route.getRouter())) {
-                String registeredPath = route.getPath();
-                httpRequest.setPath(httpRequest.getPath().replace(registeredPath, ""));
-                route.handleRequest(httpRequest, httpResponse);
-                return;
-            }
-        }
-        handleRouteNotMatched(httpRequest);
-    }
+    @Override
+    public abstract void handleRequest(HttpRequest httpRequest, HttpResponse httpResponse);
 
-    public void registerRoute(Route route) {
-        if (!routes.add(route)) throw new RouteConflictException(route);
-    }
+    public abstract void registerRoute(Route route);
 
     public Set<Route> getRoutes() {
         return routes;
     }
 
-    private void handleRouteNotMatched(HttpRequest httpRequest) {
-        throw new MethodNotAllowedException(httpRequest.getMethod() + " - " +
-                httpRequest.getPath() + ": Not Implemented.");
+    @Override
+    public String toString() {
+        StringBuilder body = new StringBuilder();
+        for (Route route : getRoutes()) {
+            body.append(route.getMethod() + " " + route.getPath() + "\n");
+        }
+        return body.toString();
     }
-
 }

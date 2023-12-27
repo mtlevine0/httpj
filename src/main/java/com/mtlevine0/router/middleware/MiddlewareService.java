@@ -2,11 +2,11 @@ package com.mtlevine0.router.middleware;
 
 import com.mtlevine0.httpj.FeatureFlag;
 import com.mtlevine0.httpj.FeatureFlagContext;
-import com.mtlevine0.router.handlers.CustomRequestHandler;
-import com.mtlevine0.router.Router;
-import com.mtlevine0.httpj.request.HttpRequest;
-import com.mtlevine0.httpj.response.HttpResponse;
-import com.mtlevine0.httpj.response.HttpStatus;
+import com.mtlevine0.httpj.common.CustomRequestHandler;
+import com.mtlevine0.router.AdvancedRouter;
+import com.mtlevine0.httpj.common.request.HttpRequest;
+import com.mtlevine0.httpj.common.response.HttpResponse;
+import com.mtlevine0.httpj.common.response.HttpStatus;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -17,7 +17,7 @@ public class MiddlewareService {
     private static List<Middleware> middlewares;
     private int routerIndex = 0;
 
-    public MiddlewareService(Router router) {
+    public MiddlewareService(AdvancedRouter router) {
         middlewares = new ArrayList<>();
 
         registerPreRouter(new LoggingMiddleware());
