@@ -3,9 +3,13 @@ package com.mtlevine0.router;
 import com.mtlevine0.httpj.common.request.HttpMethod;
 import com.mtlevine0.httpj.common.request.HttpRequest;
 import com.mtlevine0.httpj.common.response.HttpResponse;
+import com.mtlevine0.httpj.common.response.HttpStatus;
 import com.mtlevine0.router.exception.RouteConflictException;
 import org.junit.Before;
 import org.junit.Test;
+
+import java.util.HashMap;
+import java.util.Map;
 
 import static org.junit.Assert.*;
 
@@ -29,6 +33,7 @@ public class BasicRouterTest {
 
         Route route = new Route("/info", HttpMethod.GET, ((req, res) -> {
             res.setBody(resBody.getBytes());
+            res.setStatus(HttpStatus.OK);
         }));
         router.registerRoute(route);
 
@@ -50,6 +55,9 @@ public class BasicRouterTest {
         HttpRequest httpRequest = new HttpRequest();
         httpRequest.setMethod(HttpMethod.GET);
         httpRequest.setPath("/info");
+        Map<String, String> headers = new HashMap<>();
+        headers.put("testing", "123");
+        httpRequest.setHeaders(headers);
         return httpRequest;
     }
 

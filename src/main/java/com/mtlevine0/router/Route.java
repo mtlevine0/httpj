@@ -4,10 +4,11 @@ import com.mtlevine0.httpj.common.request.HttpMethod;
 import com.mtlevine0.httpj.common.request.HttpRequest;
 import com.mtlevine0.httpj.common.response.HttpResponse;
 import com.mtlevine0.httpj.common.RequestHandler;
+import com.mtlevine0.router.middleware.MiddlewareHandler;
 
 import java.util.Objects;
 
-public class Route implements RequestHandler {
+public class Route extends MiddlewareHandler implements RequestHandler {
     private String path;
     private HttpMethod method;
     private RequestHandler requestHandler;
@@ -20,7 +21,7 @@ public class Route implements RequestHandler {
 
     @Override
     public void handleRequest(HttpRequest httpRequest, HttpResponse httpResponse) {
-        requestHandler.handleRequest(httpRequest, httpResponse);
+        super.handleRequest(httpRequest, httpResponse, requestHandler);
     }
 
     public String getPath() {

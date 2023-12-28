@@ -10,28 +10,22 @@ import com.mtlevine0.router.middleware.Middleware;
 import com.mtlevine0.router.middleware.ResponseLoggingMiddleware;
 
 public class BasicRouter extends Router {
-    private Middleware preRequestMiddleware = new Middleware();
-    private Middleware postRequestMiddleware = new Middleware();
 
     public BasicRouter() {
-        super();
-        preRequestMiddleware.registerMiddleware(new RequestLoggingMiddleware());
-        postRequestMiddleware.registerMiddleware(new ResponseLoggingMiddleware());
-        postRequestMiddleware.registerMiddleware(new GzipMiddleware());
+        super.registerPreRequestMiddlewareHandler(new RequestLoggingMiddleware());
+        super.registryPostRequestMiddlewareHandler(new ResponseLoggingMiddleware());
+        super.registryPostRequestMiddlewareHandler(new GzipMiddleware());
     }
 
     @Override
     public void handleRequest(HttpRequest httpRequest, HttpResponse httpResponse) {
-        if (preRequestMiddleware.execute(httpRequest, httpResponse).equals(Middleware.Status.CONTINUE)) {
-            this.route(httpRequest, httpResponse);
-        }
-        postRequestMiddleware.execute(httpRequest, httpResponse);
+        this.route(httpRequest, httpResponse);
     }
 
     private void route(HttpRequest httpRequest, HttpResponse httpResponse) {
         for (Route route: getRoutes()) {
             if (httpRequest.getPath().equals(route.getPath()) && (httpRequest.getMethod().equals(route.getMethod()))) {
-                route.handleRequest(httpRequest, httpResponse);
+                super.handleRequest(httpRequest, httpResponse, route);
                 return;
             }
         }
