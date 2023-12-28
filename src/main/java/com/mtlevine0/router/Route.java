@@ -4,20 +4,13 @@ import com.mtlevine0.httpj.common.request.HttpMethod;
 import com.mtlevine0.httpj.common.request.HttpRequest;
 import com.mtlevine0.httpj.common.response.HttpResponse;
 import com.mtlevine0.httpj.common.RequestHandler;
-import lombok.SneakyThrows;
 
 import java.util.Objects;
 
-public class Route {
+public class Route implements RequestHandler {
     private String path;
     private HttpMethod method;
     private RequestHandler requestHandler;
-    private AdvancedRouter router;
-
-    public Route(String path, AdvancedRouter router) {
-        this(path, null, null);
-        this.router = router;
-    }
 
     public Route(String path, HttpMethod httpMethod, RequestHandler requestHandler) {
         this.path = path;
@@ -25,13 +18,9 @@ public class Route {
         this.requestHandler = requestHandler;
     }
 
-    @SneakyThrows
+    @Override
     public void handleRequest(HttpRequest httpRequest, HttpResponse httpResponse) {
-        if (Objects.nonNull(router)) {
-            router.handleRequest(httpRequest, httpResponse);
-        } else {
-            requestHandler.handleRequest(httpRequest, httpResponse);
-        }
+        requestHandler.handleRequest(httpRequest, httpResponse);
     }
 
     public String getPath() {
@@ -44,10 +33,6 @@ public class Route {
 
     public RequestHandler getRequestHandler() {
         return requestHandler;
-    }
-
-    public AdvancedRouter getRouter() {
-        return router;
     }
 
     @Override

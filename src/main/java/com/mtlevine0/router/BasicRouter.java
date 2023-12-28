@@ -4,16 +4,28 @@ import com.mtlevine0.httpj.common.exception.MethodNotAllowedException;
 import com.mtlevine0.httpj.common.request.HttpRequest;
 import com.mtlevine0.httpj.common.response.HttpResponse;
 import com.mtlevine0.router.exception.RouteConflictException;
+import com.mtlevine0.router.middleware.GzipMiddleware;
+import com.mtlevine0.router.middleware.RequestLoggingMiddleware;
+import com.mtlevine0.router.middleware.Middleware;
+import com.mtlevine0.router.middleware.ResponseLoggingMiddleware;
 
 public class BasicRouter extends Router {
+    private Middleware preRequestMiddleware = new Middleware();
+    private Middleware postRequestMiddleware = new Middleware();
 
     public BasicRouter() {
         super();
+        preRequestMiddleware.registerMiddleware(new RequestLoggingMiddleware());
+        postRequestMiddleware.registerMiddleware(new ResponseLoggingMiddleware());
+        postRequestMiddleware.registerMiddleware(new GzipMiddleware());
     }
 
     @Override
     public void handleRequest(HttpRequest httpRequest, HttpResponse httpResponse) {
-        this.route(httpRequest, httpResponse);
+        if (preRequestMiddleware.execute(httpRequest, httpResponse).equals(Middleware.Status.CONTINUE)) {
+            this.route(httpRequest, httpResponse);
+        }
+        postRequestMiddleware.execute(httpRequest, httpResponse);
     }
 
     private void route(HttpRequest httpRequest, HttpResponse httpResponse) {
