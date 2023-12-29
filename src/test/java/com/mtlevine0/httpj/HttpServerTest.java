@@ -8,6 +8,7 @@ import com.mtlevine0.httpj.common.CustomRequestHandler;
 import com.mtlevine0.httpj.common.request.HttpRequest;
 import com.mtlevine0.httpj.common.response.HttpResponse;
 import com.mtlevine0.httpj.common.response.HttpStatus;
+import com.mtlevine0.router.middleware.TtlCacheMiddleware;
 import com.mtlevine0.router.middleware.HelloMiddleware;
 
 import java.io.IOException;
@@ -33,6 +34,18 @@ public class HttpServerTest {
         });
         infoRoute.registerPreRequestMiddlewareHandler(new HelloMiddleware());
         router.registerRoute(infoRoute);
+
+        Route sleepyRoute = new Route("/sleepy", HttpMethod.GET, (req, res) -> {
+            try {
+                Thread.sleep(2500);
+            } catch (Exception e) {
+                LOGGER.warning(e.getMessage());
+            }
+            res.setStatus(HttpStatus.OK);
+            res.setBody(("testing123\n" + Instant.now().toString()).getBytes());
+        });
+        sleepyRoute.registerPreRequestMiddlewareHandler(new TtlCacheMiddleware(30));
+        router.registerRoute(sleepyRoute);
 
         HttpJ httpJServer = new HttpJ(router);
         httpJServer.start(8080);

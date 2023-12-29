@@ -5,7 +5,6 @@ import com.mtlevine0.httpj.common.response.HttpResponse;
 import lombok.SneakyThrows;
 
 import java.io.ByteArrayOutputStream;
-import java.util.Map;
 import java.util.Objects;
 import java.util.zip.GZIPOutputStream;
 
@@ -18,13 +17,13 @@ public class GzipMiddleware implements MiddlewareRequestHandler {
     @SneakyThrows
     public Middleware.Status handleRequest(HttpRequest request, HttpResponse response) {
         byte[] body = response.getBody();
-        if (Objects.nonNull(body) && isGzip(request.getHeaders())) {
+        if (Objects.nonNull(body) && isGzipRequest(request) && !isGzipResponse(response)) {
             ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
             GZIPOutputStream gzipOutputStream = new GZIPOutputStream(outputStream);
             gzipOutputStream.write(body);
             gzipOutputStream.close();
-
             body = outputStream.toByteArray();
+            outputStream.close();
             response.setBody(body);
 
             response.getHeaders().put(CONTENT_ENCODING_HEADER, GZIP_ENCODING);
@@ -32,8 +31,12 @@ public class GzipMiddleware implements MiddlewareRequestHandler {
         return Middleware.Status.CONTINUE;
     }
 
-    private boolean isGzip(Map<String, String> httpRequestHeaders) {
-        return httpRequestHeaders.containsKey(ACCEPT_ENCODING_HEADER) &&
-                httpRequestHeaders.get(ACCEPT_ENCODING_HEADER).contains(GZIP_ENCODING);
+    private boolean isGzipResponse(HttpResponse httpResponse) {
+        return (httpResponse.getHeaders().containsKey(CONTENT_ENCODING_HEADER));
+    }
+
+    private boolean isGzipRequest(HttpRequest request) {
+        return request.getHeaders().containsKey(ACCEPT_ENCODING_HEADER) &&
+                request.getHeaders().get(ACCEPT_ENCODING_HEADER).contains(GZIP_ENCODING);
     }
 }

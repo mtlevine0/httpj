@@ -6,15 +6,14 @@ import com.mtlevine0.httpj.common.response.HttpResponse;
 import com.mtlevine0.router.exception.RouteConflictException;
 import com.mtlevine0.router.middleware.GzipMiddleware;
 import com.mtlevine0.router.middleware.RequestLoggingMiddleware;
-import com.mtlevine0.router.middleware.Middleware;
 import com.mtlevine0.router.middleware.ResponseLoggingMiddleware;
 
 public class BasicRouter extends Router {
 
     public BasicRouter() {
         super.registerPreRequestMiddlewareHandler(new RequestLoggingMiddleware());
-        super.registryPostRequestMiddlewareHandler(new ResponseLoggingMiddleware());
-        super.registryPostRequestMiddlewareHandler(new GzipMiddleware());
+        super.registerPostRequestMiddlewareHandler(new ResponseLoggingMiddleware());
+        super.registerPostRequestMiddlewareHandler(new GzipMiddleware());
     }
 
     @Override

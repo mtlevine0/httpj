@@ -12,7 +12,7 @@ public class MiddlewareHandler {
         this.preRequestMiddleware.registerMiddleware(middlewareRequestHandler);
     }
 
-    public void registryPostRequestMiddlewareHandler(MiddlewareRequestHandler middlewareRequestHandler) {
+    public void registerPostRequestMiddlewareHandler(MiddlewareRequestHandler middlewareRequestHandler) {
         this.postRequestMiddleware.registerMiddleware(middlewareRequestHandler);
     }
 

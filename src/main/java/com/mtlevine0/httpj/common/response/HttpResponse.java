@@ -36,6 +36,7 @@ public class HttpResponse {
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
         outputStream.write(responseHeader);
         outputStream.write(body);
+        outputStream.close();
         return outputStream.toByteArray();
     }
 
