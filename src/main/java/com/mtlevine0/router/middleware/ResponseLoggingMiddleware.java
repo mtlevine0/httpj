@@ -18,8 +18,6 @@ public class ResponseLoggingMiddleware implements MiddlewareRequestHandler{
         for(String headerKey: headers.keySet()) {
             sb.append(headerKey + ": " +  headers.get(headerKey) + "\n");
         }
-        sb.append("Body:\n");
-        sb.append(new String(response.getBody()));
         sb.append("\n");
         LOGGER.info(Thread.currentThread().getName() + " - " + sb);
         return Middleware.Status.CONTINUE;
