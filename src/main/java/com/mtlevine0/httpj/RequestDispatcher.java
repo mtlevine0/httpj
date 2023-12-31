@@ -34,7 +34,7 @@ public class RequestDispatcher implements Runnable {
     public void run() {
         Scanner scanner = new Scanner(new InputStreamReader(in));
         scanner.useDelimiter(HTTP_REQUEST_DELIMITER);
-        while(scanner.hasNext()) {
+        while(scanner.hasNext() && !Thread.interrupted()) {
             dispatch(new ByteArrayInputStream(scanner.next().getBytes()));
         }
         close();
