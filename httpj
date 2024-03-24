@@ -1,0 +1,3 @@
+#!/bin/bash
+
+java -cp target/httpj-1.0-SNAPSHOT.jar com.mtlevine0.httpj.StaticServer $@
